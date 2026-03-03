@@ -2,11 +2,11 @@ name: 🚀 Auto Deploy Laravel
 on:
   push:
     branches:
-      - main # تأكد أن هذا هو اسم فرعك (قد يكون master أحياناً)
+      - main # تأكد أن هذا هو اسم فرعك (main أو master)
 
 jobs:
   web-deploy:
-    name: 🎉 Syncing Files
+    name: 🎉 Build and Deploy
     runs-on: ubuntu-latest
     steps:
     - name: 🚚 Get latest code
@@ -27,7 +27,10 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: /public_html/
+        server-dir: ./
+        protocol: ftp
+        port: 21
+        timeout: 90000
         exclude: |
           **/.git*
           **/.git*/**
