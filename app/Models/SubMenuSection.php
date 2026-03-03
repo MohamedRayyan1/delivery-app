@@ -16,4 +16,6 @@ class SubMenuSection extends Model
         // انتبه: الربط هنا صار مع sub_section_id حسب المخطط الجديد
         return $this->hasMany(MenuItem::class, 'sub_section_id');
     }
+
+    
 }

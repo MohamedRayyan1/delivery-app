@@ -15,4 +15,5 @@ class MenuSection extends Model
     public function subSections() {
         return $this->hasMany(SubMenuSection::class, 'section_id');
     }
+    
 }

@@ -27,4 +27,6 @@ class Restaurant extends Model
     public function menuSections() {
         return $this->hasMany(MenuSection::class);
     }
+
+    
 }

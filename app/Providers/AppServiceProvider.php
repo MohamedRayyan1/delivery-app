@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\Contracts\AddressRepositoryInterface;
+use App\Repositories\Contracts\AdminRestaurantRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Eloquent\AddressRepository;
+use App\Repositories\Eloquent\AdminRestaurantRepository;
 use App\Repositories\Eloquent\UserRepository;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,7 +23,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             UserRepositoryInterface::class,UserRepository::class
         );
-        
+        $this->app->bind(
+            AdminRestaurantRepositoryInterface::class,
+            AdminRestaurantRepository::class
+        );
+
     }
 
     /**

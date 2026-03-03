@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 class OtpService
 {
-    private string $apiKey = 'f1HQBBLbTCeZfwCddEsBNQ:APA91bFj9_o-JI6HaCRkB6lRgpyLYMvCeIsAE6SoMxnVMIZkys2h2I0cff7h9R6avwykDUtwACCfvnGkkFyPbPZcVA5tgSwYXoZc0HWZTDYuy8D2TP0NbLI';
+    private string $apiKey = '';
     private string $apiUrl = 'https://www.traccar.org/sms/';
 
     /** إعدادات Apple Review */
