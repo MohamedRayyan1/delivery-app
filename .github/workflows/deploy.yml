@@ -2,7 +2,7 @@ name: 🚀 Auto Deploy Laravel
 on:
   push:
     branches:
-      - main # تأكد أن هذا هو اسم فرعك (main أو master)
+      - main
 
 jobs:
   web-deploy:
@@ -27,10 +27,13 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
+        # نستخدم ./ لأن الحساب "مسجون" داخل مجلد Jahez أصلاً
         server-dir: ./
         protocol: ftp
         port: 21
         timeout: 90000
+        # لتجنب خطأ 550 في حال كان المجلد جديداً
+        dangerous-clean-slate: false
         exclude: |
           **/.git*
           **/.git*/**
