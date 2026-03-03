@@ -81,38 +81,5 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Route::get('/init-db', function() {
-    try {
-        Artisan::call('migrate --force');
-        return "✅ Tables created successfully: " . Artisan::output();
-    } catch (\Exception $e) {
-        return "❌ Error: " . $e->getMessage();
-    }
-});
-
-Route::get('/init-storage', function() {
-    Artisan::call('storage:link');
-    return "✅ Storage link created!";
-});
-
 });  // Closed the auth middleware group
+
