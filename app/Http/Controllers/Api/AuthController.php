@@ -5,14 +5,22 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Services\OtpService;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
+    private OtpService $otpService;
+
+    public function __construct(OtpService $otpService)
+    {
+        $this->otpService = $otpService;
+    }
+
     // 1. تسجيل مستخدم جديد
     public function register(RegisterRequest $request)
     {
@@ -20,23 +28,26 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $request->name,
             'phone' => $request->phone,
-            'password' => Hash::make($request->password),
+            // باسورد داخلي عشوائي فقط لتلبية قيود قاعدة البيانات (لا يُستخدم في الدخول)
+            'password' => Hash::make(Str::random(16)),
             'city' => $request->city,
             'role' => $request->role ?? 'customer', // بشكل افتراضي كل المسجلين بيكونوا زبائن
             'fcm_token' => $request->fcm_token,
         ]);
 
-     
+
         // إنشاء بروفايل للزبون (نقاط 0) فوراً
         $user->customerProfile()->create(['points' => 0]);
 
-        // إنشاء التوكن
-        $token = $user->createToken('auth_token')->plainTextToken;
-        // حقن التوكن داخل الأوبجكت عشان يظهر بالـ Resource
-        $user->token = $token;
+        // إرسال كود التحقق إلى رقم الهاتف أثناء عملية التسجيل
+        $sent = $this->otpService->sendOtp($user->phone);
 
-        return $this->successResponse(new UserResource($user), 'تم إنشاء الحساب بنجاح', 201);
+        if (! $sent) {
+            return $this->errorResponse('فشل في إرسال رمز التحقق، يرجى المحاولة لاحقاً', 500);
+        }
 
+        // لا ننشئ توكن هنا، التوكن يُنشأ بعد التحقق من الـ OTP في /otp/verify
+        return $this->successResponse(null, 'تم إنشاء الحساب وإرسال رمز التحقق بنجاح', 201);
     }
 
     // 2. تسجيل الدخول
@@ -44,11 +55,12 @@ class AuthController extends Controller
     {
         $user = User::where('phone', $request->phone)->first();
 
-        // التحقق من الباسورد
-        if (! $user || ! Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'phone' => ['بيانات الاعتماد غير صحيحة.'],
-            ]);
+        if (! $user) {
+            return $this->errorResponse('رقم الهاتف غير مسجل، يرجى إنشاء حساب جديد.', 404);
+        }
+
+        if ($user->is_banned) {
+            return $this->errorResponse('تم حظر هذا الحساب. يرجى التواصل مع الدعم.', 403);
         }
 
         // تحديث FCM Token إذا انبعت (عشان الإشعارات توصل عالجهاز الجديد)
@@ -56,24 +68,28 @@ class AuthController extends Controller
             $user->update(['fcm_token' => $request->fcm_token]);
         }
 
-        // إنشاء توكن جديد
-        // ملاحظة: فيك تحذف التوكنات القديمة $user->tokens()->delete(); لو بدك دخول من جهاز واحد بس
-        $token = $user->createToken('auth_token')->plainTextToken;
-        $user->token = $token;
+        // إرسال كود التحقق إلى رقم الهاتف أثناء عملية تسجيل الدخول
+        $sent = $this->otpService->sendOtp($user->phone);
 
-        return $this->successResponse(new UserResource($user), 'تم تسجيل الدخول بنجاح');
+        // if (! $sent) {
+        //     return $this->errorResponse('فشل في إرسال رمز التحقق، يرجى المحاولة لاحقاً', 500);
+        // }
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        // لا ننشئ توكن هنا، التوكن يُنشأ بعد التحقق من الـ OTP في /otp/verify
+        return $this->successResponse(['token' => $token], 'تم إرسال رمز التحقق بنجاح');
     }
 
 
     public function logout(Request $request)
-{
-    /** @var \Laravel\Sanctum\PersonalAccessToken $token */
-    $token = $request->user()->currentAccessToken();
+    {
+        /** @var \Laravel\Sanctum\PersonalAccessToken $token */
+        $token = $request->user()->currentAccessToken();
 
-    $token->delete();
+        $token->delete();
 
-    return response()->json(['message' => 'Logged out successfully']);
-}
+        return response()->json(['message' => 'Logged out successfully']);
+    }
 
     // 4. جلب بيانات المستخدم الحالي
     public function profile(Request $request)

@@ -18,7 +18,6 @@ class RegisterRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:20|unique:users,phone',
-            'password' => 'required|string|min:6', // لازم يبعت حقل password_confirmation
             'city' => 'required|string',
             'fcm_token' => 'nullable|string',
         ];
@@ -36,9 +35,6 @@ class RegisterRequest extends FormRequest
             'phone.required' => 'رقم الهاتف مطلوب للتسجيل.',
             'phone.unique' => 'رقم الهاتف هذا مستخدم مسبقاً، يرجى تسجيل الدخول.',
 
-            // رسائل كلمة المرور
-            'password.required' => 'كلمة المرور مطلوبة.',
-            'password.min' => 'كلمة المرور يجب أن تكون 6 خانات على الأقل.',
         ];
     }
 

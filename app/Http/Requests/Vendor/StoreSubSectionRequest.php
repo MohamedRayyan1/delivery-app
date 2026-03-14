@@ -13,7 +13,7 @@ class StoreSubSectionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'section_id' => 'required|integer|exists:menu_sections,id',
+            'restaurant_id' => 'required|integer|exists:restaurants,id',
             'name' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];

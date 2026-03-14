@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreRestaurantRequest;
 use App\Http\Requests\Admin\UpdateRestaurantRequest;
 use App\Http\Resources\Admin\AdminRestaurantResource;
-use App\Services\AdminRestaurantService;
+use App\Services\admin\AdminRestaurantService;
 
 class RestaurantController extends Controller
 {

@@ -20,26 +20,28 @@ class VendorMenuService
     }
 
     // --- Sections ---
-public function addSection($resId, $data) {
-    return DB::transaction(function () use ($resId, $data) {
+
+public function addSection( $data) {
+    return DB::transaction(function () use ( $data) {
         // 1. معالجة رفع الصورة إذا وجدت
         if (request()->hasFile('image')) {
             $data['image'] = request()->file('image')->store('menu/sections', 'public');
         }
 
-        $data['restaurant_id'] = $resId;
         $section = $this->repository->createSection($data);
+
+        // ربط القسم بالمطعم في الجدول الوسيط (حتى يمكن أن يرتبط لاحقاً بعدة مطاعم)
+        // $section->restaurants()->syncWithoutDetaching([$resId]);
 
         // 2. إرسال المهمة للـ Queue للمعالجة في الخلفية
         if (array_key_exists('image', $data)) {
             dispatch(new \App\Jobs\ProcessImageJob($section, 'image', $data['image']));
         }
 
-        $this->clearCache($resId);
+        // $this->clearCache($resId);
 
         return [
         'id' => $section->id,
-        'restaurant_id' => $section->restaurant_id,
         'name' => $section->name,
         'image' => $section->image ? asset('storage/' . $section->image) : null,
         'created_at' => $section->created_at->toDateTimeString(),
@@ -48,27 +50,24 @@ public function addSection($resId, $data) {
 }
 
 // تحديث قسم موجود
-public function updateSection($id, $resId, $data) {
-    return DB::transaction(function () use ($id, $resId, $data) {
+public function updateSection($id, $data) {
+    return DB::transaction(function () use ($id, $data) {
         // 1. معالجة رفع الصورة الجديدة
         if (request()->hasFile('image')) {
             $data['image'] = request()->file('image')->store('menu/sections', 'public');
         }
 
         // 2. تحديث البيانات في الداتا بيس
-        $this->repository->updateSection($id, $resId, $data);
-        $section = $this->repository->findSection($id, $resId);
+        $this->repository->updateSection($id,  $data);
+        $section = $this->repository->findSection($id);
 
         // 3. إرسال للـ Queue فقط إذا تم رفع صورة فعلياً
         if (array_key_exists('image', $data)) {
             dispatch(new \App\Jobs\ProcessImageJob($section, 'image', $data['image']));
         }
 
-        $this->clearCache($resId);
-
         return [
         'id' => $section->id,
-        'restaurant_id' => $section->restaurant_id,
         'name' => $section->name,
         'image' => $section->image ? asset('storage/' . $section->image) : null,
         'created_at' => $section->created_at->toDateTimeString(),
@@ -76,10 +75,9 @@ public function updateSection($id, $resId, $data) {
     });
 }
 
-    public function deleteSection($id, $resId) {
-        return DB::transaction(function () use ($id, $resId) {
-            $deleted = $this->repository->deleteSection($id, $resId);
-            $this->clearCache($resId);
+    public function deleteSection($id) {
+        return DB::transaction(function () use ($id) {
+            $deleted = $this->repository->deleteSection($id);
             return $deleted;
         });
     }
@@ -91,7 +89,7 @@ public function addSubSection($resId, $data) {
         if (request()->hasFile('image')) {
             $data['image'] = request()->file('image')->store('menu/sub-sections', 'public');
         }
-
+        $data['restaurant_id'] = $resId; // تأكد من تمرير restaurant_id لإنشاء القسم الفرعي مرتبطاً بالمطعم
         $sub = $this->repository->createSubSection($data);
 
         if (array_key_exists('image', $data)) {
@@ -118,7 +116,7 @@ public function updateSubSection($id, $resId, $data) {
 
         // 2. التحديث في الداتا بيس وجلب الموديل المحدث
         $this->repository->updateSubSection($id, $resId, $data);
-        $subSection = $this->repository->findSubSection($id, $resId);
+        $subSection = $this->repository->findSubSection($id);
 
         // 3. التوجيه للـ Queue في حال تم تغيير الصورة
         if (array_key_exists('image', $data)) {
@@ -128,7 +126,6 @@ public function updateSubSection($id, $resId, $data) {
         $this->clearCache($resId);
         return [
         'id' => $subSection->id,
-        'restaurant_id' => $subSection->restaurant_id,
         'name' => $subSection->name,
         'image' => $subSection->image ? asset('storage/' . $subSection->image) : null,
         'created_at' => $subSection->created_at->toDateTimeString(),
@@ -207,7 +204,7 @@ public function updateItem($id, $resId, $data) {
         'is_featured' => (bool)$item->is_featured,
         'created_at' => $item->created_at->toDateTimeString(),
         ];
-       
+
     });
 }
 

@@ -17,7 +17,6 @@ class LoginRequest extends FormRequest
     {
         return [
             'phone' => 'required|string',
-            'password' => 'required|string',
             'fcm_token' => 'nullable|string',
         ];
     }
@@ -26,7 +25,6 @@ class LoginRequest extends FormRequest
     {
         return [
             'phone.required' => 'يرجى إدخال رقم الهاتف.',
-            'password.required' => 'يرجى إدخال كلمة المرور.',
         ];
     }
 

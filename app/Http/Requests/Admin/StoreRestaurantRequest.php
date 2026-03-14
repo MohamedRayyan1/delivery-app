@@ -28,6 +28,7 @@ class StoreRestaurantRequest extends FormRequest
             'logo' => 'nullable|string',
             'cover_image' => 'nullable|string',
             'description' => 'nullable|string',
+            'menu_section_ids' => 'required|array|min:1',
             'delivery_cost' => 'nullable|numeric',
             'min_order_price' => 'nullable|numeric',
             'delivery_time' => 'nullable|string|max:255',

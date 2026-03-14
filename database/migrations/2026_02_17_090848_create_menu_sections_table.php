@@ -10,7 +10,6 @@ return new class extends Migration
     {
         Schema::create('menu_sections', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('restaurant_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('image')->nullable();
             $table->timestamps();
@@ -19,6 +18,7 @@ return new class extends Migration
 
     public function down(): void
     {
+        Schema::dropIfExists('menu_section_restaurant');
         Schema::dropIfExists('menu_sections');
     }
 };

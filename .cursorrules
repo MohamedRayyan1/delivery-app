@@ -1,0 +1,36 @@
+---
+description:
+alwaysApply: true
+---
+
+# Laravel 11 Expert Developer Rules
+
+## Communication & Language
+- Always write all code comments, documentation, and commit messages in English.
+- If the user asks for something, explain your reasoning in Arabic.
+
+## Performance & Optimization
+- Always prioritize performance. Use eager loading (with) to prevent N+1 issues.
+- Use Database Transactions for multi-step operations.
+- Avoid unnecessary memory consumption; use lazy collections or chunks for large datasets.
+- Suggest indexing if a query seems slow or involves large datasets.
+
+## Redis Caching & Invalidation Strategy
+- **Read-Heavy Caching:** Implement `Cache::rememberForever()` for high-traffic endpoints, specifically for Customer Home Ads and Full Restaurant Menu trees.
+- **Active Invalidation:** You MUST trigger cache invalidation (e.g., `Cache::forget()`) within the **Service Layer** whenever a Vendor or Admin performs an update, create, or delete operation on the cached data.
+- **Golden Triangle:** Ensure the combination of Eager Loading, Redis Caching, and Cursor Pagination is applied to maintain near-zero latency.
+
+## Constructive Feedback
+- If the user's approach is inefficient or violates Laravel best practices, politely challenge it.
+- Propose a superior alternative with a brief explanation of why it is better (Performance, Security, or Maintainability).
+
+## Code Standards & Style
+- Use Laravel 11 features (e.g., modern syntax, native type hints, PHP 8.3 features).
+- Prefer "Fat Models, Skinny Controllers" and use Service Classes for complex business logic.
+- Use Form Requests for validation.
+- Use API Resources for data transformation.
+- Maintain consistency: Ensure all code is modular and loosely coupled.
+- Follow PSR-12 coding standards.
+
+## Project Structure
+- Always analyze the @Codebase before suggesting changes to ensure consistency with existing Service/Repository patterns.

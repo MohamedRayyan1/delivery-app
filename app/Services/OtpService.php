@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 class OtpService
 {
-    private string $apiKey = '';
+   
+    private string $apiKey = 'f1HQBBLbTCeZfwCddEsBNQ:APA91bFj9_o-JI6HaCRkB6lRgpywjnnunununslsE6SoMxnVMIZkys2h2I0cff7h9R6avwykDUtwACCfvnGkkFyPbPZcVA5tgSwYXoZc0HWZTDYuy8D2TP0NbLI';
     private string $apiUrl = 'https://www.traccar.org/sms/';
 
     /** إعدادات Apple Review */
@@ -83,6 +84,7 @@ class OtpService
             $user = User::where('phone', $phone)->first();
 
             if (!$user) return 'User not found for Apple review phone.';
+            if ($user->is_banned) return 'تم حظر هذا الحساب. يرجى التواصل مع الدعم.';
 
             return [
                 'token' => $user->createToken('auth_token')->plainTextToken,
@@ -107,6 +109,10 @@ class OtpService
 
         // جلب المستخدم وتوليد التوكن
         $user = User::where('phone', $phone)->firstOrFail();
+
+        if ($user->is_banned) {
+            return 'تم حظر هذا الحساب. يرجى التواصل مع الدعم.';
+        }
 
         return [
             'token' => $user->createToken('auth_token')->plainTextToken,

@@ -49,4 +49,44 @@ class ProfileController extends Controller
 
         return $this->successResponse(null, 'تم حذف الحساب بنجاح');
     }
+
+    /**
+     * حظر مستخدم من قبل الأدمن (لا يتم حذفه، فقط منع الدخول)
+     */
+    public function banUser(Request $request, int $id)
+    {
+        $targetUser = \App\Models\User::find($id);
+
+        if (!$targetUser) {
+            return $this->errorResponse('المستخدم غير موجود', 404);
+        }
+
+        if ($targetUser->role === 'admin') {
+            return $this->errorResponse('لا يمكن حظر حساب أدمن', 403);
+        }
+
+        if ($targetUser->id === $request->user()->id) {
+            return $this->errorResponse('لا يمكنك حظر حسابك أنت', 403);
+        }
+
+        $this->profileService->banUser($id);
+
+        return $this->successResponse(null, 'تم حظر المستخدم بنجاح');
+    }
+
+    /**
+     * إلغاء حظر مستخدم من قبل الأدمن
+     */
+    public function unbanUser(Request $request, int $id)
+    {
+        $targetUser = \App\Models\User::find($id);
+
+        if (!$targetUser) {
+            return $this->errorResponse('المستخدم غير موجود', 404);
+        }
+
+        $this->profileService->unbanUser($id);
+
+        return $this->successResponse(null, 'تم إلغاء حظر المستخدم بنجاح');
+    }
 }

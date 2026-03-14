@@ -19,17 +19,17 @@ class MenuController extends Controller
 
     // --- Sections ---
     public function storeSection(StoreMenuSectionRequest $request) {
-        $section = $this->menuService->addSection($request->my_restaurant_id, $request->validated());
+        $section = $this->menuService->addSection( $request->validated());
         return $this->successResponse($section, 'تمت الإضافة بنجاح', 201);
     }
 
     public function updateSection(StoreMenuSectionRequest $request, $id) {
-        $section=$this->menuService->updateSection($id, $request->my_restaurant_id, $request->validated());
+        $section=$this->menuService->updateSection($id,  $request->validated());
         return $this->successResponse($section, 'تم التحديث بنجاح');
     }
 
     public function destroySection(Request $request, $id) {
-        $this->menuService->deleteSection($id, $request->my_restaurant_id);
+        $this->menuService->deleteSection($id);
         return $this->successResponse(null, 'تم الحذف بنجاح');
     }
 
@@ -72,4 +72,5 @@ class MenuController extends Controller
         return $this->successResponse($menu);
     }
 
-}
+    }
+

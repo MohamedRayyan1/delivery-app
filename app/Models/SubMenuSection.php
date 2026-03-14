@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SubMenuSection extends Model
 {
-    protected $fillable = ['section_id', 'name', 'image'];
+    protected $fillable = ['restaurant_id','name', 'image'];
 
     public function section() {
         return $this->belongsTo(MenuSection::class, 'section_id');
@@ -17,5 +17,5 @@ class SubMenuSection extends Model
         return $this->hasMany(MenuItem::class, 'sub_section_id');
     }
 
-    
+
 }

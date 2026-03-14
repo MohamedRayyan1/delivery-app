@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Admin;
 
+use App\Http\Resources\Customer\CustomerMenuSectionResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -16,6 +17,7 @@ class AdminRestaurantResource extends JsonResource
             'governorate' => $this->governorate,
             'city' => $this->city,
             'status' => $this->status,
+            'sections' => CustomerMenuSectionResource::collection($this->whenLoaded('sections')),
             'logo' => $this->logo ? asset('storage/' . $this->logo) : null,
             'cover_image' => $this->cover_image ? asset('storage/' . $this->cover_image) : null,
             'description' => $this->description,

@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
 
             // الربط مع القسم الرئيسي
-            $table->foreignId('section_id')->constrained('menu_sections')->cascadeOnDelete();
+            $table->foreignId('restaurant_id')->constrained('restaurants')->cascadeOnDelete();
 
             $table->string('name');
             $table->string('image')->nullable();

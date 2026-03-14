@@ -24,8 +24,34 @@ class Restaurant extends Model
         return $this->belongsTo(User::class, 'manager_user_id');
     }
 
-    public function menuSections() {
-        return $this->hasMany(MenuSection::class);
+    /**
+     * الأقسام المرتبطة بالمطعم عبر الجدول الوسيط menu_section_restaurant
+     * (قسم واحد يمكن أن يحتوي عدة مطاعم، ومطعم يمكن أن يرتبط بعدة أقسام)
+     */
+    public function sections()
+    {
+        return $this->belongsToMany(
+            MenuSection::class,
+            'menu_section_restaurant',
+            'restaurant_id',
+            'menu_section_id'
+        );
+    }
+
+    /**
+     * الطلبات المرتبطة بالمطعم (تُستخدم لحساب الأكثر طلباً)
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    /**
+     * اسم قديم للعلاقة للإبقاء على التوافق مع أي استخدامات سابقة
+     */
+    public function menuSections()
+    {
+        return $this->sections();
     }
 
     

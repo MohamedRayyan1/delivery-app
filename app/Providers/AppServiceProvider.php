@@ -2,12 +2,16 @@
 
 namespace App\Providers;
 
+use App\Models\Restaurant;
+use App\Observers\RestaurantObserver;
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\Contracts\AddressRepositoryInterface;
 use App\Repositories\Contracts\AdminRestaurantRepositoryInterface;
+use App\Repositories\Contracts\MenuSectionRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Eloquent\AddressRepository;
 use App\Repositories\Eloquent\AdminRestaurantRepository;
+use App\Repositories\Eloquent\MenuSectionRepository;
 use App\Repositories\Eloquent\UserRepository;
 
 class AppServiceProvider extends ServiceProvider
@@ -27,6 +31,10 @@ class AppServiceProvider extends ServiceProvider
             AdminRestaurantRepositoryInterface::class,
             AdminRestaurantRepository::class
         );
+        $this->app->bind(
+            MenuSectionRepositoryInterface::class,
+            MenuSectionRepository::class
+        );
 
     }
 
@@ -35,6 +43,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+       Restaurant::observe(RestaurantObserver::class);
     }
 }

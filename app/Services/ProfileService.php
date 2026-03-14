@@ -33,4 +33,14 @@ class ProfileService
     {
         return $this->userRepo->deleteUser($userId);
     }
+
+    public function banUser(int $userId): bool
+    {
+        return $this->userRepo->banUser($userId);
+    }
+
+    public function unbanUser(int $userId): bool
+    {
+        return $this->userRepo->unbanUser($userId);
+    }
 }
