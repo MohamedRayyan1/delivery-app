@@ -14,13 +14,19 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
-        'name', 'phone', 'email', 'password',
-        'role', 'city', 'fcm_token',
+        'name',
+        'phone',
+        'email',
+        'password',
+        'role',
+        'city',
+        'fcm_token',
         'is_banned'
     ];
 
     protected $hidden = [
-        'password', 'remember_token',
+        'password',
+        'remember_token',
     ];
 
     protected $casts = [
@@ -29,31 +35,37 @@ class User extends Authenticatable
     ];
 
     // العلاقات
-    public function addresses() {
+    public function addresses()
+    {
         return $this->hasMany(UserAddress::class);
     }
 
-    public function driverProfile() {
+    public function driver()
+    {
         return $this->hasOne(Driver::class);
     }
 
-    public function customerProfile() {
+    public function customerProfile()
+    {
         return $this->hasOne(CustomerProfile::class);
     }
 
     // Helper Method للتحقق من الرول بسهولة
-    public function hasRole($role) {
+    public function hasRole($role)
+    {
         return $this->role === $role;
     }
 
 
-public function favoriteRestaurants() {
-    return $this->belongsToMany(Restaurant::class, 'favorite_restaurants', 'user_id', 'restaurant_id')
-                ->withPivot('created_at');
-}
+    public function favoriteRestaurants()
+    {
+        return $this->belongsToMany(Restaurant::class, 'favorite_restaurants', 'user_id', 'restaurant_id')
+            ->withPivot('created_at');
+    }
 
-public function favoriteItems() {
-    return $this->belongsToMany(MenuItem::class, 'favorite_items', 'user_id', 'item_id')
-                ->withPivot('created_at');
-}
+    public function favoriteItems()
+    {
+        return $this->belongsToMany(MenuItem::class, 'favorite_items', 'user_id', 'item_id')
+            ->withPivot('created_at');
+    }
 }
