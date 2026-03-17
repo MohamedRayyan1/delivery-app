@@ -7,9 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Driver extends Model
 {
     protected $fillable = [
-        'user_id', 'is_online', 'account_status',
-        'vehicle_type', 'vehicle_plate_number',
-        'license_image', 'current_lat', 'current_lng'
+        'user_id',
+        'is_online',
+        'account_status',
+        'vehicle_type',
+        'vehicle_plate_number',
+        'license_image',
+        'current_lat',
+        'current_lng',
+        'total_earnings'
     ];
 
     protected $casts = [
@@ -18,7 +24,8 @@ class Driver extends Model
         'current_lng' => 'decimal:8',
     ];
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 

@@ -6,6 +6,7 @@ use App\Models\Driver;
 use App\Models\Order;
 use App\Models\Review;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class DriverHomeRepository
 {
@@ -43,6 +44,15 @@ class DriverHomeRepository
             ->where('status', 'completed')
             ->whereDate('delivered_at', Carbon::today())
             ->sum(\DB::raw('delivery_fee * (applied_driver_share / 100)'));
+    }
+
+    /**
+     *  الأرباح الكلية
+     */
+    public function getTotalEarnings(int $driverId): float
+    {
+        $driver = Driver::find($driverId);
+        return (float) ($driver->total_earnings ?? 0);
     }
 
     /**

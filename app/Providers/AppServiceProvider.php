@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Order;
 use App\Models\Restaurant;
+use App\Observers\OrderObserver;
 use App\Observers\RestaurantObserver;
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\Contracts\AddressRepositoryInterface;
@@ -44,5 +46,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
        Restaurant::observe(RestaurantObserver::class);
+       Order::observe(OrderObserver::class);
     }
 }

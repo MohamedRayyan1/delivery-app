@@ -47,7 +47,7 @@ class DriverHomeService
 
 
     /**
-     * 🏠 بيانات الصفحة الرئيسية
+     *  بيانات الصفحة الرئيسية
      */
     public function getHomeData(int $userId): array
     {
@@ -62,6 +62,7 @@ class DriverHomeService
             'earnings_today' => $this->repository->getTodayEarnings($driver->id),
             'completed_orders' => $this->repository->getCompletedOrdersCount($driver->id),
             'rating' => round($this->repository->getAverageRating($driver->id), 1),
+            'total_earnings'   => $this->repository->getTotalEarnings($driver->id),
         ];
     }
 }
