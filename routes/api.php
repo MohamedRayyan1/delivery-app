@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\Vendor\VendorProfileController;
 use App\Http\Controllers\Api\Admin\MenuSectionController;
 use App\Http\Controllers\Api\Customer\CustomerSectionController;
 use App\Http\Controllers\Api\Driver\DriverAuthController;
+use App\Http\Controllers\Api\Driver\DriverHomeController;
 
 // 1. (Public)
 Route::post('/register', [AuthController::class, 'register']);
@@ -126,8 +127,12 @@ Route::prefix('driver')->group(function () {
 
     // 2. مسارات السائق المحمية (Protected Driver Routes)
     Route::middleware('auth:sanctum')->group(function () {
+        //AuthDriver
         Route::post('logout',   [DriverAuthController::class, 'logout']);
         Route::get('profile',    [DriverAuthController::class, 'profile']);
         Route::post('profile',  [DriverAuthController::class, 'updateProfile']);
+        //Home page
+        Route::post('toggle-status', [DriverHomeController::class, 'toggleStatus']);
+        Route::get('home', [DriverHomeController::class, 'home']);
     });
 });
