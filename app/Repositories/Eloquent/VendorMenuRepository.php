@@ -69,7 +69,7 @@ class VendorMenuRepository
         $restaurant = Restaurant::find($resId);
 // بما أن sub_menu_sections مرتبطة بـ restaurant_id مباشرة:
         $subSections = SubMenuSection::where('restaurant_id', $resId)
-        ->with('items') // تأكد أن علاقة items معرفة في موديل SubMenuSection
+        ->with('items.extras') // تأكد أن علاقة items معرفة في موديل SubMenuSection
         ->get();
 
         return [

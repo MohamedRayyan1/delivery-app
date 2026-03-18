@@ -33,6 +33,10 @@ class User extends Authenticatable
         return $this->hasMany(UserAddress::class);
     }
 
+    public function managedRestaurant() {
+    return $this->hasOne(Restaurant::class, 'manager_user_id');
+}
+
     public function driverProfile() {
         return $this->hasOne(Driver::class);
     }

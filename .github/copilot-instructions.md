@@ -1,7 +1,11 @@
+# AI Coding Agent Instructions for Delivery App
+
 ---
+
 description:
 
 alwaysApply: true
+
 ---
 
 # Laravel 11 Expert Developer Rules
