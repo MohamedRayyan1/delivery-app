@@ -169,6 +169,7 @@ namespace App\Models{
  * @property int $user_id
  * @property bool $is_online
  * @property string $account_status
+ * @property numeric $total_earnings
  * @property string $vehicle_type
  * @property string|null $vehicle_plate_number
  * @property string|null $license_image
@@ -187,12 +188,23 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereIsOnline($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereLicenseImage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereTotalEarnings($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereVehiclePlateNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereVehicleType($value)
  */
 	class Driver extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property-read \App\Models\Driver|null $driver
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DriverDailyStat newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DriverDailyStat newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DriverDailyStat query()
+ */
+	class DriverDailyStat extends \Eloquent {}
 }
 
 namespace App\Models{

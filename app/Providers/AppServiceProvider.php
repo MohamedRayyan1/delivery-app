@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Models\Order;
 use App\Models\Restaurant;
+use App\Models\Review;
 use App\Observers\OrderObserver;
 use App\Observers\RestaurantObserver;
+use App\Observers\ReviewObserver;
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\Contracts\AddressRepositoryInterface;
 use App\Repositories\Contracts\AdminRestaurantRepositoryInterface;
@@ -24,10 +26,12 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(
-            AddressRepositoryInterface::class, AddressRepository::class,
+            AddressRepositoryInterface::class,
+            AddressRepository::class,
         );
         $this->app->bind(
-            UserRepositoryInterface::class,UserRepository::class
+            UserRepositoryInterface::class,
+            UserRepository::class
         );
         $this->app->bind(
             AdminRestaurantRepositoryInterface::class,
@@ -37,7 +41,6 @@ class AppServiceProvider extends ServiceProvider
             MenuSectionRepositoryInterface::class,
             MenuSectionRepository::class
         );
-
     }
 
     /**
@@ -45,7 +48,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-       Restaurant::observe(RestaurantObserver::class);
-       Order::observe(OrderObserver::class);
+        Restaurant::observe(RestaurantObserver::class);
+        Order::observe(OrderObserver::class);
+        Review::observe(ReviewObserver::class);
     }
 }
