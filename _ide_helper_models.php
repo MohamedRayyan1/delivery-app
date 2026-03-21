@@ -169,6 +169,7 @@ namespace App\Models{
  * @property int $user_id
  * @property bool $is_online
  * @property string $account_status
+ * @property numeric $total_earnings
  * @property string $vehicle_type
  * @property string|null $vehicle_plate_number
  * @property string|null $license_image
@@ -187,12 +188,23 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereIsOnline($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereLicenseImage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereTotalEarnings($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereVehiclePlateNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereVehicleType($value)
  */
 	class Driver extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property-read \App\Models\Driver|null $driver
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DriverDailyStat newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DriverDailyStat newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DriverDailyStat query()
+ */
+	class DriverDailyStat extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -231,14 +243,15 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property int $id
- * @property int $restaurant_id
  * @property string $name
  * @property string|null $image
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Restaurant $restaurant
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Restaurant> $restaurants
+ * @property-read int|null $restaurants_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SubMenuSection> $subSections
  * @property-read int|null $sub_sections_count
+ * @method static \Database\Factories\MenuSectionFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MenuSection newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MenuSection newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MenuSection query()
@@ -246,7 +259,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MenuSection whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MenuSection whereImage($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MenuSection whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|MenuSection whereRestaurantId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MenuSection whereUpdatedAt($value)
  */
 	class MenuSection extends \Eloquent {}
@@ -381,8 +393,10 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\User $manager
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MenuSection> $menuSections
- * @property-read int|null $menu_sections_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Order> $orders
+ * @property-read int|null $orders_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MenuSection> $sections
+ * @property-read int|null $sections_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant query()
@@ -441,14 +455,14 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property int $id
- * @property int $section_id
+ * @property int $restaurant_id
  * @property string $name
  * @property string|null $image
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MenuItem> $items
  * @property-read int|null $items_count
- * @property-read \App\Models\MenuSection $section
+ * @property-read \App\Models\MenuSection|null $section
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SubMenuSection newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SubMenuSection newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SubMenuSection query()
@@ -456,7 +470,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SubMenuSection whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SubMenuSection whereImage($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SubMenuSection whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|SubMenuSection whereSectionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubMenuSection whereRestaurantId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SubMenuSection whereUpdatedAt($value)
  */
 	class SubMenuSection extends \Eloquent {}
@@ -516,11 +530,11 @@ namespace App\Models{
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $deleted_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\UserAddress> $addresses
  * @property-read int|null $addresses_count
  * @property-read \App\Models\CustomerProfile|null $customerProfile
- * @property-read \App\Models\Driver|null $driverProfile
+ * @property-read \App\Models\Driver|null $driver
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MenuItem> $favoriteItems
  * @property-read int|null $favorite_items_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Restaurant> $favoriteRestaurants
@@ -532,7 +546,6 @@ namespace App\Models{
  * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCity($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCreatedAt($value)
@@ -547,8 +560,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRememberToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRole($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User withTrashed(bool $withTrashed = true)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutTrashed()
  */
 	class User extends \Eloquent {}
 }

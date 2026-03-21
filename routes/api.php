@@ -1,12 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Api\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\OtpController;
 use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\Admin\AdminAdController;
-use App\Http\Controllers\Api\Customer\CustomerHomeController;
 use App\Http\Controllers\Api\Customer\CustomerRestaurantController;
 use App\Http\Controllers\Api\RestaurantController;
 use App\Http\Controllers\Api\ProfileController;
@@ -20,6 +18,8 @@ use App\Http\Controllers\Api\Customer\CustomerFavoriteController;
 use App\Http\Controllers\Api\Customer\CustomerOrderController;
 use App\Http\Controllers\Api\Customer\CustomerSectionController;
 use App\Http\Controllers\Api\Vendor\VendorExtraController;
+use App\Http\Controllers\Api\Driver\DriverAuthController;
+use App\Http\Controllers\Api\Driver\DriverHomeController;
 
 // 1. (Public)
 Route::post('/register', [AuthController::class, 'register']);
@@ -41,15 +41,14 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::put('/{id}', [AddressController::class, 'update']);
         Route::delete('/{id}', [AddressController::class, 'destroy']);
         Route::patch('/{id}/default', [AddressController::class, 'setDefault']);
-
-         });
-     //profile
+    });
+    //profile
     Route::prefix('profile')->group(function () {
-         Route::get('/', [ProfileController::class, 'show']);
-         Route::put('/', [ProfileController::class, 'update']);
-         Route::patch('/fcm-token', [ProfileController::class, 'updateFcmToken']);
-         Route::delete('/', [ProfileController::class, 'destroy']);
-          });
+        Route::get('/', [ProfileController::class, 'show']);
+        Route::put('/', [ProfileController::class, 'update']);
+        Route::patch('/fcm-token', [ProfileController::class, 'updateFcmToken']);
+        Route::delete('/', [ProfileController::class, 'destroy']);
+    });
 
     Route::prefix('admin')->group(function () {
 
@@ -72,18 +71,18 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
             Route::patch('users/{id}/unban', [ProfileController::class, 'unbanUser']);
             //ads
             Route::prefix('ads')->group(function () {
-            Route::get('/pending', [AdminAdController::class, 'index']);
-            Route::patch('/{id}/quote', [AdminAdController::class, 'quote']);
-            Route::patch('/{id}/approve', [AdminAdController::class, 'approve']);
-            Route::patch('/{id}/reject', [AdminAdController::class, 'reject']);
+                Route::get('/pending', [AdminAdController::class, 'index']);
+                Route::patch('/{id}/quote', [AdminAdController::class, 'quote']);
+                Route::patch('/{id}/approve', [AdminAdController::class, 'approve']);
+                Route::patch('/{id}/reject', [AdminAdController::class, 'reject']);
             });
-        });//
-    });//
+        }); //
+    }); //
 
 
 
     //menu
-      Route::get('vendor/menu/{restaurant_id}', [MenuController::class, 'index']);
+    Route::get('vendor/menu/{restaurant_id}', [MenuController::class, 'index']);
 
     //vendor
     Route::middleware(['check.restaurant.owner'])->prefix('vendor')->group(function () {
@@ -110,12 +109,11 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
 
         //ads
         Route::prefix('ads')->group(function () {
-        Route::get('/', [VendorAdController::class, 'index']);
-        Route::post('/', [VendorAdController::class, 'store']);
-        Route::post('/{id}', [VendorAdController::class, 'update']);
-        Route::delete('/{id}', [VendorAdController::class, 'destroy']);
-         });
-
+            Route::get('/', [VendorAdController::class, 'index']);
+            Route::post('/', [VendorAdController::class, 'store']);
+            Route::post('/{id}', [VendorAdController::class, 'update']);
+            Route::delete('/{id}', [VendorAdController::class, 'destroy']);
+        });
     }); // Closed the vendor middleware group
 
         // customer
@@ -149,9 +147,34 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
             Route::post('/favorites/items/{id}', [CustomerFavoriteController::class, 'toggleItem']);
 
         });
+    // customer
+    Route::prefix('customer')->group(function () {
+        // إلغاء home القديم واستبداله بـ APIات الأقسام
+        Route::get('/sections', [CustomerSectionController::class, 'index']);
+
+        Route::get('/sections/{sectionId}/restaurants', [CustomerSectionController::class, 'restaurants']);
 
 
-
+        Route::get('/restaurants', [CustomerRestaurantController::class, 'index']);
+        Route::get('/restaurants/{id}', [CustomerRestaurantController::class, 'show']);
+    });
 });  // Closed the auth:sanctum middleware group
 
 
+// 1. مسارات السائق العامة (Public Driver Routes)
+Route::prefix('driver')->group(function () {
+    Route::post('register', [DriverAuthController::class, 'register']);
+    Route::post('login',    [DriverAuthController::class, 'login']);
+
+    // 2. مسارات السائق المحمية (Protected Driver Routes)
+    Route::middleware('auth:sanctum')->group(function () {
+        //AuthDriver
+        Route::post('logout',   [DriverAuthController::class, 'logout']);
+        Route::get('profile',    [DriverAuthController::class, 'profile']);
+        Route::post('profile',  [DriverAuthController::class, 'updateProfile']);
+        //Home page
+        Route::post('toggle-status', [DriverHomeController::class, 'toggleStatus']);
+        Route::get('home', [DriverHomeController::class, 'home']);
+        Route::get('/weekly-report', [DriverHomeController::class, 'weeklyReport']);
+    });
+});
