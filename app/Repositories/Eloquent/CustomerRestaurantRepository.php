@@ -30,7 +30,7 @@ class CustomerRestaurantRepository
             ->with(['sections' => function ($sectionQuery) {
                 $sectionQuery->with(['subSections' => function ($subSectionQuery) {
                     $subSectionQuery->with(['items' => function ($itemQuery) {
-                        $itemQuery->where('is_available', true);
+                        $itemQuery->where('is_available', true)->with('extras');
                     }]);
                 }]);
             }])

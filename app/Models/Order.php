@@ -39,6 +39,10 @@ class Order extends Model
         return $this->belongsTo(Restaurant::class);
     }
 
+    public function address() { 
+        return $this->belongsTo(UserAddress::class, 'address_id');
+    }
+
     public function driver() {
         return $this->belongsTo(Driver::class);
     }

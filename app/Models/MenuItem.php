@@ -23,6 +23,11 @@ class MenuItem extends Model
         return $this->belongsTo(SubMenuSection::class, 'sub_section_id');
     }
 
+    public function extras()
+    {
+        return $this->hasMany(ItemExtra::class);
+    }
+    
     // دالة مساعدة لحساب السعر النهائي (مع الخصم)
     public function getFinalPriceAttribute() {
         return $this->discount_price ?: $this->price;

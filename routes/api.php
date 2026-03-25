@@ -12,7 +12,13 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\Vendor\MenuController;
 use App\Http\Controllers\Api\Vendor\VendorAdController;
 use App\Http\Controllers\Api\Vendor\VendorProfileController;
+use App\Http\Controllers\Api\Customer\CustomerAdController;
+use App\Http\Controllers\Api\Customer\CustomerCartController;
+use App\Http\Controllers\Api\Customer\CustomerFavoriteController;
+use App\Http\Controllers\Api\Customer\CustomerOrderController;
+use App\Http\Controllers\Api\Customer\CustomerSearchController;
 use App\Http\Controllers\Api\Customer\CustomerSectionController;
+use App\Http\Controllers\Api\Vendor\VendorExtraController;
 
 // 1. (Public)
 Route::post('/register', [AuthController::class, 'register']);
@@ -102,6 +108,12 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::post('/items', [MenuController::class, 'storeItem']);
         Route::put('/items/{id}', [MenuController::class, 'updateItem']);
         Route::delete('/items/{id}', [MenuController::class, 'destroyItem']);
+
+        // //Extra
+        Route::post('/extras', [VendorExtraController::class, 'store']);
+        Route::put('/extras/{id}', [VendorExtraController::class, 'update']);
+        Route::delete('/extras/{id}', [VendorExtraController::class, 'destroy']);
+
         //ads
         Route::prefix('ads')->group(function () {
             Route::get('/', [VendorAdController::class, 'index']);
@@ -111,12 +123,48 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         });
     }); // Closed the vendor middleware group
 
+        // customer
+        Route::prefix('customer')->group(function () {
+            // إلغاء home القديم واستبداله بـ APIات الأقسام
+            Route::get('/sections', [CustomerSectionController::class, 'index']);
+
+            Route::get('/sections/{sectionId}/restaurants', [CustomerSectionController::class, 'restaurants']);
+
+            Route::get('/restaurants', [CustomerRestaurantController::class, 'index']);
+            // Route::get('/restaurants/{id}', [CustomerRestaurantController::class, 'show']);
+            Route::get('/ads', [CustomerAdController::class, 'index']);
+
+
+            // راوتات السلة (Cart)
+            Route::prefix('cart')->group(function () {
+                Route::get('/', [CustomerCartController::class, 'index']);
+                Route::post('/items', [CustomerCartController::class, 'store']);
+                Route::delete('/items/{id}', [CustomerCartController::class, 'destroy']);
+                Route::delete('/', [CustomerCartController::class, 'clear']);
+            });
+
+            // راوت إنشاء الطلب
+            Route::post('/checkout', [CustomerOrderController::class, 'checkout']);
+
+            Route::get('/orders', [CustomerOrderController::class, 'index']);
+            Route::get('/orders/{id}', [CustomerOrderController::class, 'show']);
+
+            Route::get('/favorites', [CustomerFavoriteController::class, 'index']);
+            Route::post('/favorites/restaurants/{id}', [CustomerFavoriteController::class, 'toggleRestaurant']);
+            Route::post('/favorites/items/{id}', [CustomerFavoriteController::class, 'toggleItem']);
+
+            Route::post('/search', [CustomerSearchController::class, 'searchMeals']);
+
+              Route::get('/items/{id}', [MenuController::class, 'showItem']);
+
+        });
     // customer
     Route::prefix('customer')->group(function () {
         // إلغاء home القديم واستبداله بـ APIات الأقسام
         Route::get('/sections', [CustomerSectionController::class, 'index']);
 
         Route::get('/sections/{sectionId}/restaurants', [CustomerSectionController::class, 'restaurants']);
+
 
         Route::get('/restaurants', [CustomerRestaurantController::class, 'index']);
         Route::get('/restaurants/{id}', [CustomerRestaurantController::class, 'show']);
