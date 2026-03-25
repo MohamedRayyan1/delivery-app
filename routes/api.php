@@ -12,7 +12,7 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\Vendor\MenuController;
 use App\Http\Controllers\Api\Vendor\VendorAdController;
 use App\Http\Controllers\Api\Vendor\VendorProfileController;
-use App\Http\Controllers\Api\Admin\MenuSectionController;
+
 use App\Http\Controllers\Api\Customer\CustomerAdController;
 use App\Http\Controllers\Api\Customer\CustomerCartController;
 use App\Http\Controllers\Api\Customer\CustomerFavoriteController;
@@ -20,8 +20,7 @@ use App\Http\Controllers\Api\Customer\CustomerOrderController;
 use App\Http\Controllers\Api\Customer\CustomerSearchController;
 use App\Http\Controllers\Api\Customer\CustomerSectionController;
 use App\Http\Controllers\Api\Vendor\VendorExtraController;
-use App\Http\Controllers\Api\Driver\DriverAuthController;
-use App\Http\Controllers\Api\Driver\DriverHomeController;
+
 
 // 1. (Public)
 Route::post('/register', [AuthController::class, 'register']);

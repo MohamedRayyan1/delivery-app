@@ -24,6 +24,7 @@ return new class extends Migration
 
             // Index مركب للبحث السريع (جيبلي الطلبات المعلقة لهذا السائق)
             $table->index(['driver_id', 'status']);
+            $table->index(['order_id', 'status']);
         });
     }
 
