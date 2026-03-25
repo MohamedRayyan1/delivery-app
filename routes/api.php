@@ -13,8 +13,6 @@ use App\Http\Controllers\Api\Vendor\MenuController;
 use App\Http\Controllers\Api\Vendor\VendorAdController;
 use App\Http\Controllers\Api\Vendor\VendorProfileController;
 use App\Http\Controllers\Api\Customer\CustomerSectionController;
-use App\Http\Controllers\Api\Driver\DriverAuthController;
-use App\Http\Controllers\Api\Driver\DriverHomeController;
 
 // 1. (Public)
 Route::post('/register', [AuthController::class, 'register']);
