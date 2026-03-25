@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\StoreMenuSectionRequest;
 use App\Http\Requests\Vendor\StoreSubSectionRequest;
 use App\Http\Requests\Vendor\StoreMenuItemRequest;
+use App\Http\Resources\Customer\CustomerSectionItemResource;
 use App\Services\Vendor\VendorMenuService;
 use Illuminate\Http\Request;
 
@@ -50,6 +51,20 @@ class MenuController extends Controller
     }
 
     // --- Items ---
+
+    public function showItem(int $id)
+    {
+        $item = $this->menuService->getItemDetails($id);
+
+        if (!$item) {
+            return $this->errorResponse("الوجبة غير موجودة", 404);
+        }
+
+        return $this->successResponse([
+            'Item' => new CustomerSectionItemResource($item)
+        ]);
+    }
+
     public function storeItem(StoreMenuItemRequest $request) {
         $item = $this->menuService->addItem($request->my_restaurant_id, $request->validated());
         return $this->successResponse($item, 'تمت الإضافة بنجاح', 201);

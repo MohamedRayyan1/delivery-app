@@ -19,6 +19,8 @@ class CustomerSectionRestaurantsResource extends JsonResource
             'is_featured' => (bool) $this->is_featured,
             'city' => $this->city,
             'rating' => $this->rating,
+            'is_favorite' => (bool) $this->is_fav_id,
+            'status' => $this->status,
         ];
     }
 }

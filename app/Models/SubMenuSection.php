@@ -8,6 +8,10 @@ class SubMenuSection extends Model
 {
     protected $fillable = ['restaurant_id','name', 'image'];
 
+    public function restaurant() {
+        return $this->belongsTo(Restaurant::class, 'restaurant_id');
+    }
+    
     public function section() {
         return $this->belongsTo(MenuSection::class, 'section_id');
     }

@@ -37,6 +37,10 @@ class Restaurant extends Model
             'menu_section_id'
         );
     }
+    public function subMenuSections()
+    {
+        return $this->hasMany(SubMenuSection::class, 'restaurant_id');
+    }
 
     /**
      * الطلبات المرتبطة بالمطعم (تُستخدم لحساب الأكثر طلباً)
@@ -54,5 +58,5 @@ class Restaurant extends Model
         return $this->sections();
     }
 
-    
+
 }

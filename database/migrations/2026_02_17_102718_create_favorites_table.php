@@ -8,25 +8,23 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // 1. المطاعم المفضلة
-        Schema::create('favorite_restaurants', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('restaurant_id')->constrained()->cascadeOnDelete();
-            $table->timestamp('created_at')->useCurrent();
+       Schema::create('favorite_restaurants', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('user_id')->constrained()->cascadeOnDelete()->index(); // إضافة index
+    $table->foreignId('restaurant_id')->constrained()->cascadeOnDelete()->index(); // إضافة index
+    $table->timestamp('created_at')->useCurrent();
 
-            $table->unique(['user_id', 'restaurant_id']); // منع التكرار
-        });
+    $table->unique(['user_id', 'restaurant_id']);
+});
 
-        // 2. الوجبات المفضلة
-        Schema::create('favorite_items', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('item_id')->constrained('menu_items')->cascadeOnDelete();
-            $table->timestamp('created_at')->useCurrent();
+Schema::create('favorite_items', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('user_id')->constrained()->cascadeOnDelete()->index();
+    $table->foreignId('item_id')->constrained('menu_items')->cascadeOnDelete()->index();
+    $table->timestamp('created_at')->useCurrent();
 
-            $table->unique(['user_id', 'item_id']);
-        });
+    $table->unique(['user_id', 'item_id']);
+});
     }
 
     public function down(): void
