@@ -33,7 +33,7 @@ class IntegratedDataSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         // 2. إنشاء المطاعم ومديريها (لضمان تكامل المفاتيح الأجنبية)
-     // 2. إنشاء المطاعم ومديريها (لضمان تكامل المفاتيح الأجنبية)
+        // 2. إنشاء المطاعم ومديريها (لضمان تكامل المفاتيح الأجنبية)
         $restaurantIds = [];
         if (DB::getSchemaBuilder()->hasTable('restaurants')) {
             $governorates = ['الرياض', 'مكة المكرمة', 'المنطقة الشرقية', 'القصيم'];
@@ -45,7 +45,7 @@ class IntegratedDataSeeder extends Seeder
                 $managerId = DB::table('users')->insertGetId([
                     'name' => 'مدير مطعم ' . $faker->firstName,
                     'phone' => '05' . $faker->unique()->randomNumber(8, true),
-                    'email' => 'manager'.$i.'_'.uniqid().'@example.com',
+                    'email' => 'manager' . $i . '_' . uniqid() . '@example.com',
                     'password' => Hash::make('password123'),
                     'role' => 'restaurant_manager', //
                     'city' => $faker->city, //
@@ -60,6 +60,8 @@ class IntegratedDataSeeder extends Seeder
                     'manager_user_id' => $managerId,
                     'governorate' => $selectedGov, // حل الخطأ الحالي
                     'city' => $faker->city,         // لتجنب خطأ مشابه مستقبلاً
+                    'lat' => $faker->latitude(24.5, 24.9),
+                    'lng' => $faker->longitude(46.5, 46.9),
                     'created_at' => $now,
                     'updated_at' => $now,
                 ]);
@@ -219,6 +221,44 @@ class IntegratedDataSeeder extends Seeder
                 $driverTotalEarningsTracker[$driverId] += $stats['earnings'];
             }
         }
+
+
+        // 8. إنشاء Delivery Requests (توزيع الطلبات على عدة سائقين)
+        DB::table('delivery_requests')->truncate();
+
+        $orders = DB::table('orders')->get();
+        $drivers = DB::table('drivers')->get();
+
+        $deliveryRequests = [];
+
+        foreach ($orders as $order) {
+
+            // اختر 2-4 سائقين عشوائيين لكل طلب
+            $selectedDrivers = $drivers->random(rand(2, min(4, $drivers->count())));
+
+            foreach ($selectedDrivers as $driver) {
+
+                $deliveryRequests[] = [
+                    'order_id' => $order->id,
+                    'driver_id' => $driver->id,
+
+                    // الربح المعروض (نفس delivery_fee)
+                    'offered_delivery_fee' => $order->delivery_fee,
+
+                    'required_vehicle_type' => $driver->vehicle_type,
+
+                    // حالة عشوائية (بعضها pending للتجربة)
+                    'status' => collect(['pending', 'accepted', 'rejected', 'ignored'])
+                        ->random(),
+
+                    'created_at' => $order->created_at,
+                    'updated_at' => $order->updated_at,
+                ];
+            }
+        }
+
+        // إدخال جماعي (أداء عالي)
+        DB::table('delivery_requests')->insert($deliveryRequests);
 
         // 7. تحديث إجمالي أرباح السائقين النهائي في جدول (drivers)
         foreach ($driverTotalEarningsTracker as $driverId => $totalEarnings) {

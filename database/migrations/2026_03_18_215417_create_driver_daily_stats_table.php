@@ -20,7 +20,7 @@ return new class extends Migration
             $table->decimal('rating_sum', 10, 2)->default(0); // لتخزين مجموع التقييمات
             $table->unsignedInteger('rating_count')->default(0); // لتخزين عدد التقييمات
             $table->timestamps();
-
+            
             // منع التكرار: سجل واحد لكل سائق في كل يوم
             $table->unique(['driver_id', 'stat_date']);
         });

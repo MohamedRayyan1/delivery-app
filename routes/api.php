@@ -119,18 +119,25 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
 
 // 1. مسارات السائق العامة (Public Driver Routes)
 Route::prefix('driver')->group(function () {
+
+    //  Public Routes
     Route::post('register', [DriverAuthController::class, 'register']);
     Route::post('login',    [DriverAuthController::class, 'login']);
 
-    // 2. مسارات السائق المحمية (Protected Driver Routes)
+    //  Protected Routes
     Route::middleware('auth:sanctum')->group(function () {
-        //AuthDriver
+
+        //  Auth
         Route::post('logout',   [DriverAuthController::class, 'logout']);
-        Route::get('profile',    [DriverAuthController::class, 'profile']);
+        Route::get('profile',   [DriverAuthController::class, 'profile']);
         Route::post('profile',  [DriverAuthController::class, 'updateProfile']);
-        //Home page
+
+        //  Home
         Route::post('toggle-status', [DriverHomeController::class, 'toggleStatus']);
-        Route::get('home', [DriverHomeController::class, 'home']);
-        Route::get('/weekly-report', [DriverHomeController::class, 'weeklyReport']);
+        Route::get('home',           [DriverHomeController::class, 'home']);
+        Route::get('weekly-report',  [DriverHomeController::class, 'weeklyReport']);
+
+        //  Dispatch System
+        // Route::post('cal',[DriverDispatchController::class],);
     });
 });
