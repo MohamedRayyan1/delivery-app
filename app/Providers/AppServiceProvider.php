@@ -49,7 +49,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Restaurant::observe(RestaurantObserver::class);
-        Order::observe(OrderObserver::class);
-        Review::observe(ReviewObserver::class);
+
     }
 }

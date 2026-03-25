@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\OtpController;
 use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\Admin\AdminAdController;
+use App\Http\Controllers\Api\Admin\AdminCouponController;
 use App\Http\Controllers\Api\Customer\CustomerRestaurantController;
 use App\Http\Controllers\Api\RestaurantController;
 use App\Http\Controllers\Api\ProfileController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Api\Customer\CustomerAdController;
 use App\Http\Controllers\Api\Customer\CustomerCartController;
 use App\Http\Controllers\Api\Customer\CustomerFavoriteController;
 use App\Http\Controllers\Api\Customer\CustomerOrderController;
+use App\Http\Controllers\Api\Customer\CustomerSearchController;
 use App\Http\Controllers\Api\Customer\CustomerSectionController;
 use App\Http\Controllers\Api\Vendor\VendorExtraController;
 use App\Http\Controllers\Api\Driver\DriverAuthController;
@@ -27,6 +29,7 @@ Route::post('/login', [AuthController::class, 'login']);
 
 // إرسال الـ OTP أصبح يتم بشكل داخلي ضمن مسارات التسجيل وتسجيل الدخول
 Route::post('/otp/verify', [OtpController::class, 'verify']);
+Route::post('/otp/send', [OtpController::class, 'send']);
 
 // 2. راوتات محمية (Protected) - تحتاج توكن (المحظورون ممنوعون)
 Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
@@ -76,6 +79,12 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
                 Route::patch('/{id}/approve', [AdminAdController::class, 'approve']);
                 Route::patch('/{id}/reject', [AdminAdController::class, 'reject']);
             });
+            Route::prefix('coupons')->group(function () {
+                Route::get('/', [AdminCouponController::class, 'index']);
+                Route::post('/', [AdminCouponController::class, 'store']);
+                Route::put('/{id}', [AdminCouponController::class, 'update']);
+                Route::delete('/{id}', [AdminCouponController::class, 'destroy']);
+             });
         }); //
     }); //
 
@@ -98,6 +107,7 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::delete('/sub-sections/{id}', [MenuController::class, 'destroySubSection']);
 
         // Items
+
         Route::post('/items', [MenuController::class, 'storeItem']);
         Route::put('/items/{id}', [MenuController::class, 'updateItem']);
         Route::delete('/items/{id}', [MenuController::class, 'destroyItem']);
@@ -146,6 +156,10 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
             Route::post('/favorites/restaurants/{id}', [CustomerFavoriteController::class, 'toggleRestaurant']);
             Route::post('/favorites/items/{id}', [CustomerFavoriteController::class, 'toggleItem']);
 
+            Route::post('/search', [CustomerSearchController::class, 'searchMeals']);
+
+              Route::get('/items/{id}', [MenuController::class, 'showItem']);
+
         });
     // customer
     Route::prefix('customer')->group(function () {
@@ -161,20 +175,3 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
 });  // Closed the auth:sanctum middleware group
 
 
-// 1. مسارات السائق العامة (Public Driver Routes)
-Route::prefix('driver')->group(function () {
-    Route::post('register', [DriverAuthController::class, 'register']);
-    Route::post('login',    [DriverAuthController::class, 'login']);
-
-    // 2. مسارات السائق المحمية (Protected Driver Routes)
-    Route::middleware('auth:sanctum')->group(function () {
-        //AuthDriver
-        Route::post('logout',   [DriverAuthController::class, 'logout']);
-        Route::get('profile',    [DriverAuthController::class, 'profile']);
-        Route::post('profile',  [DriverAuthController::class, 'updateProfile']);
-        //Home page
-        Route::post('toggle-status', [DriverHomeController::class, 'toggleStatus']);
-        Route::get('home', [DriverHomeController::class, 'home']);
-        Route::get('/weekly-report', [DriverHomeController::class, 'weeklyReport']);
-    });
-});

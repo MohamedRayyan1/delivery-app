@@ -46,6 +46,15 @@ class VendorMenuRepository
     }
 
     // --- Menu Items ---
+
+    public function findItemById(int $itemId)
+    {
+        // استخدام with لضمان جلب كل البيانات اللازمة بـ Query واحد فقط
+        return MenuItem::where('is_available', true)
+            ->with(['extras'])->find($itemId);
+    }
+
+
     public function createItem(array $data) { return MenuItem::create($data); }
 
     public function updateItem(int $id, int $resId, array $data) {

@@ -14,7 +14,7 @@ return new class extends Migration
             // الربط مع القسم الفرعي
             $table->foreignId('sub_section_id')->constrained('sub_menu_sections')->cascadeOnDelete();
 
-            $table->string('name');
+            $table->string('name')->index();
             $table->text('description')->nullable();
 
             $table->decimal('price', 8, 2);

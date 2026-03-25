@@ -142,6 +142,13 @@ public function updateSubSection($id, $resId, $data) {
 
 
     // --- Items ---
+
+    public function getItemDetails(int $itemId)
+{
+
+        return $this->repository->findItemById($itemId);
+}
+
    // إضافة وجبة جديدة
 public function addItem($resId, $data) {
     return DB::transaction(function () use ($resId, $data) {

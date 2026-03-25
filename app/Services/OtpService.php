@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\RateLimiter;
 class OtpService
 {
 
-    private string $apiKey = 'f1HQBBLbTCeZfwCddEsBNQ:APA91bFj9_o-JI6HaCRkB6lRgpywjnnunununslsE6SoMxnVMIZkys2h2I0cff7h9R6avwykDUtwACCfvnGkkFyPbPZcVA5tgSwYXoZc0HWZTDYuy8D2TP0NbLI';
+    // private string $apiKey = 'dCOcq57cSz2HRu8vyp2Jc6:APA91bH_ovY8GlWbJPHKqhnZO6B9NeQBwVbMQ9dqUGZaICnFw3j0gxmeFrHmqU2Wxdf6NMSjKKNhHiKamT3DXhK3w9uewmDKckjCy5e1-V0i7uyTKrZrASw';
+    private string $apiKey = 'f1HQBBLbTCeZfwCddEsBNQ:APA91bFj9_o-JI6HaCRkB6lRgpyLYMvCeIsAE6SoMxnVMIZkys2h2I0cff7h9R6avwykDUtwACCfvnGkkFyPbPZcVA5tgSwYXoZc0HWZTDYuy8D2TP0NbLI';
     private string $apiUrl = 'https://www.traccar.org/sms/';
 
     /** إعدادات Apple Review */
@@ -46,7 +47,7 @@ class OtpService
             return true;
         }
 
-        $message = "كود التحقق الخاص بك هو: $code. يرجى عدم مشاركته مع أي شخص.";
+        $message = "كود التحقق الخاص بك هو: $code. يرجى عدم مشاركته مع أي شخص. أبوس روحك اني";
 
         try {
             // إرسال الـ SMS باستخدام تقنيات لارافل الحديثة
@@ -65,7 +66,7 @@ class OtpService
                 Log::error('[SMS] Failed to send OTP', ['phone' => $phone, 'response' => $response->body()]);
                 return false;
             }
-
+        
             return true;
 
         } catch (\Exception $e) {
