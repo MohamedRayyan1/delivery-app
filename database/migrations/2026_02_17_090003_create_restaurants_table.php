@@ -30,6 +30,9 @@ return new class extends Migration
             $table->string('delivery_time')->nullable();
 
             $table->boolean('is_featured')->default(false)->index();
+            //الموقع
+            $table->decimal('lat', 10, 8);
+            $table->decimal('lng', 11, 8);
 
             $table->timestamps();
         });
