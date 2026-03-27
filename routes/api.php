@@ -17,11 +17,15 @@ use App\Http\Controllers\Api\Customer\CustomerAdController;
 use App\Http\Controllers\Api\Customer\CustomerCartController;
 use App\Http\Controllers\Api\Customer\CustomerFavoriteController;
 use App\Http\Controllers\Api\Customer\CustomerOrderController;
+use App\Http\Controllers\Api\Customer\CustomerReviewController;
 use App\Http\Controllers\Api\Customer\CustomerSearchController;
 use App\Http\Controllers\Api\Customer\CustomerSectionController;
 use App\Http\Controllers\Api\Vendor\VendorExtraController;
 use App\Http\Controllers\Api\Driver\DriverAuthController;
+use App\Http\Controllers\Api\Driver\DriverEarningsController;
 use App\Http\Controllers\Api\Driver\DriverHomeController;
+use App\Http\Controllers\Api\Driver\DriverProfileController;
+use App\Http\Controllers\Api\Driver\DriverStatusController;
 
 // 1. (Public)
 Route::post('/register', [AuthController::class, 'register']);
@@ -148,7 +152,7 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
 
             // راوت إنشاء الطلب
             Route::post('/checkout', [CustomerOrderController::class, 'checkout']);
-
+            Route::put('/orders/{id}/cancel', [CustomerOrderController::class, 'cancel']);
             Route::get('/orders', [CustomerOrderController::class, 'index']);
             Route::get('/orders/{id}', [CustomerOrderController::class, 'show']);
 
@@ -158,7 +162,12 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
 
             Route::post('/search', [CustomerSearchController::class, 'searchMeals']);
 
-              Route::get('/items/{id}', [MenuController::class, 'showItem']);
+            Route::get('/items/{id}', [MenuController::class, 'showItem']);
+            Route::get('/trackOrder/{id}', [CustomerOrderController::class, 'trackOrder']);
+
+            Route::get('/reviews', [CustomerReviewController::class, 'index']);
+            Route::post('/orders/{orderId}/review', [CustomerReviewController::class, 'store']);
+            Route::delete('/reviews/{id}', [CustomerReviewController::class, 'destroy']);
 
         });
     // customer
@@ -172,6 +181,21 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::get('/restaurants', [CustomerRestaurantController::class, 'index']);
         Route::get('/restaurants/{id}', [CustomerRestaurantController::class, 'show']);
     });
+
 });  // Closed the auth:sanctum middleware group
 
+Route::prefix('driver')->group(function () {
 
+    Route::post('/register', [DriverAuthController::class, 'register']);
+
+
+    Route::middleware(['auth:sanctum'])->group(function () {
+
+        Route::put('/profile', [DriverProfileController::class, 'update']);
+        Route::get('/profile', [DriverProfileController::class, 'showProfile']);
+        Route::put('/status/online', [DriverStatusController::class, 'toggleOnline']);
+        Route::put('/earnings', [DriverEarningsController::class, 'index']);
+
+        Route::get('/transactions', [DriverEarningsController::class, 'transactions']);
+    });
+});

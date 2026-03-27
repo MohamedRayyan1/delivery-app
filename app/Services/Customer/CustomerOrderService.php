@@ -112,7 +112,38 @@ class CustomerOrderService
     }
 
     public function getOrderDetails(int $userId, int $orderId)
-    {    
+    {
         return $this->repository->getUserOrderById($userId, $orderId);
     }
+
+    public function getOrderStatusAndDriver(int $orderId)
+{
+    $order = $this->repository->getOrderTracking($orderId);
+
+    if (!$order) {
+        return null;
+    }
+
+    return $order;
+}
+
+public function cancelOrder(int $userId, int $orderId)
+    {
+        return DB::transaction(function () use ($userId, $orderId) {
+            $order = $this->repository->getUserOrderById($userId, $orderId);
+
+            if ($order->status !== 'pending') {
+                throw new Exception('لا يمكن إلغاء الطلب لأن المطعم بدأ في تحضيره.');
+            }
+
+            $this->repository->updateOrderStatus($orderId, 'cancelled');
+
+            if ($order->coupon_id !== null) {
+                $this->repository->incrementCouponUsage($order->coupon_id);
+            }
+
+            return $this->repository->getUserOrderById($userId, $orderId);
+        });
+    }
+
 }

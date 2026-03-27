@@ -64,4 +64,39 @@ class CustomerOrderRepository
             ->firstOrFail();
         return $Orders;
     }
+
+public function getOrderTracking(int $orderId)
+{
+    return Order::where('id', $orderId)
+        ->select([
+            'id',
+            'status',
+            'driver_id',
+            'user_id',
+            'restaurant_id', // ضروري لعمل العلاقة
+            'delivery_confirmation_code',
+            'grand_total',
+            'created_at'
+        ])
+        ->with([
+            'driver.user:id,name,phone',
+            'restaurant:id,name,logo', // جلب اللوجو كمان عشان الصورة اللي بالتصميم
+            'items.Item:id,name'   // جلب أسماء الوجبات اللي بالطلب
+        ])
+        ->first();
+}
+
+    public function incrementCouponUsage(int $couponId)
+    {
+        $coupon = Coupon::find($couponId);
+        if ($coupon && $coupon->usage_limit !== null) {
+            $coupon->increment('usage_limit');
+        }
+    }
+
+    public function updateOrderStatus(int $orderId, string $status)
+    {
+        return Order::where('id', $orderId)->update(['status' => $status]);
+    }
+
 }

@@ -7,6 +7,7 @@ use App\Services\Customer\CustomerOrderService;
 use App\Http\Requests\Customer\CheckoutRequest;
 use App\Http\Resources\Customer\CustomerOrderListResource;
 use App\Http\Resources\Customer\CustomerOrderResource;
+use App\Http\Resources\Customer\OrderTrackingResource;
 use Illuminate\Http\Request;
 
 class CustomerOrderController extends Controller
@@ -51,6 +52,34 @@ public function show(Request $request, int $id)
                 new CustomerOrderResource($order),
                 'تم إنشاء الطلب بنجاح',
                 201
+            );
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    public function trackOrder($id)
+{
+    $order = $this->orderService->getOrderStatusAndDriver($id);
+
+    if (!$order) {
+        return $this->errorResponse("الطلب غير موجود", 404);
+    }
+
+    return $this->successResponse(new OrderTrackingResource($order));
+}
+
+    public function cancel(Request $request, int $id)
+    {
+        try {
+            $order = $this->orderService->cancelOrder($request->user()->id, $id);
+
+            return $this->successResponse(
+                new CustomerOrderResource($order),
+                'تم إلغاء الطلب بنجاح'
             );
         } catch (\Exception $e) {
             return response()->json([
