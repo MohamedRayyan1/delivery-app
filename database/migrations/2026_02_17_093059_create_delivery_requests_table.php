@@ -12,17 +12,15 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('order_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('driver_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('driver_id')->nullable()->constrained()->cascadeOnDelete();
 
-            $table->decimal('offered_delivery_fee', 8, 2); // السعر المعروض عالسائق
-            $table->string('required_vehicle_type')->nullable(); // motor, car
-
-            // حالة الطلب بالنسبة لهاد السائق
-            $table->string('status')->default('pending')->index(); // pending, accepted, rejected, ignored
+            $table->decimal('offered_delivery_fee', 8, 2);
+            $table->string('required_vehicle_type')->nullable();
+            // pending: قيد الانتظار | accepted: مقبول | picked_up: تم الاستلام | delivered: تم التوصيل
+            $table->enum('status', ['pending', 'accepted', 'picked_up', 'delivered'])->default('pending')->index();
 
             $table->timestamps();
 
-            // Index مركب للبحث السريع (جيبلي الطلبات المعلقة لهذا السائق)
             $table->index(['driver_id', 'status']);
             $table->index(['order_id', 'status']);
         });

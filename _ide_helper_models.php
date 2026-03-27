@@ -199,12 +199,62 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * @property-read \App\Models\Driver|null $driver
- * @method static \Illuminate\Database\Eloquent\Builder<static>|DriverDailyStat newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|DriverDailyStat newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|DriverDailyStat query()
+ * @property int $id
+ * @property string $name
+ * @property int $points
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Gift newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Gift newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Gift query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Gift whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Gift whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Gift whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Gift wherePoints($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Gift whereUpdatedAt($value)
  */
-	class DriverDailyStat extends \Eloquent {}
+	class Gift extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property string $name
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Governorate newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Governorate newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Governorate query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Governorate whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Governorate whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Governorate whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Governorate whereUpdatedAt($value)
+ */
+	class Governorate extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $menu_item_id
+ * @property string $name
+ * @property string $category
+ * @property numeric $price
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\MenuItem $menuItem
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItemExtra newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItemExtra newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItemExtra query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItemExtra whereCategory($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItemExtra whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItemExtra whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItemExtra whereMenuItemId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItemExtra whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItemExtra wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItemExtra whereUpdatedAt($value)
+ */
+	class ItemExtra extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -220,6 +270,8 @@ namespace App\Models{
  * @property bool $is_available
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ItemExtra> $extras
+ * @property-read int|null $extras_count
  * @property-read mixed $final_price
  * @property-read \App\Models\SubMenuSection $subSection
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MenuItem newModelQuery()
@@ -288,6 +340,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $paid_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\UserAddress $address
  * @property-read mixed $app_earnings
  * @property-read \App\Models\Driver|null $driver
  * @property-read mixed $driver_earnings
@@ -390,6 +443,8 @@ namespace App\Models{
  * @property numeric $min_order_price
  * @property string|null $delivery_time
  * @property bool $is_featured
+ * @property numeric $lat
+ * @property numeric $lng
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\User $manager
@@ -397,6 +452,8 @@ namespace App\Models{
  * @property-read int|null $orders_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MenuSection> $sections
  * @property-read int|null $sections_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SubMenuSection> $subMenuSections
+ * @property-read int|null $sub_menu_sections_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant query()
@@ -409,6 +466,8 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant whereGovernorate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant whereIsFeatured($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant whereLat($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant whereLng($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant whereLogo($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant whereManagerUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant whereMinOrderPrice($value)
@@ -462,6 +521,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MenuItem> $items
  * @property-read int|null $items_count
+ * @property-read \App\Models\Restaurant $restaurant
  * @property-read \App\Models\MenuSection|null $section
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SubMenuSection newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SubMenuSection newQuery()
@@ -539,6 +599,7 @@ namespace App\Models{
  * @property-read int|null $favorite_items_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Restaurant> $favoriteRestaurants
  * @property-read int|null $favorite_restaurants_count
+ * @property-read \App\Models\Restaurant|null $managedRestaurant
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
