@@ -4,7 +4,6 @@ namespace App\Services\Driver;
 
 use App\Events\Driver\OrderAccepted;
 use App\Models\DeliveryRequest;
-use App\Models\Order;
 use App\Repositories\Eloquent\HomePageRepository;
 use App\Services\Driver\GeoapifyDistanceService;
 use Illuminate\Support\Facades\Auth;

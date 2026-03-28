@@ -22,7 +22,6 @@ use App\Http\Controllers\Api\Customer\CustomerSectionController;
 use App\Http\Controllers\Api\Vendor\VendorExtraController;
 use App\Http\Controllers\Api\Driver\DriverAuthController;
 use App\Http\Controllers\Api\Driver\DriverEarningsController;
-use App\Http\Controllers\Api\Driver\DriverHomeController;
 use App\Http\Controllers\Api\Driver\DriverProfileController;
 use App\Http\Controllers\Api\Driver\DriverStatusController;
 use App\Http\Controllers\Api\Driver\HomePageController;
