@@ -20,6 +20,7 @@ class DeliveryRequestSeeder extends Seeder
                 'offered_delivery_fee' => $order->delivery_fee,
                 'required_vehicle_type' => null,
                 'status' => $statuses[array_rand($statuses)],
+                'invoice_image' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

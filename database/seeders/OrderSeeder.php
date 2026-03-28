@@ -9,11 +9,12 @@ class OrderSeeder extends Seeder
 {
     public function run(): void
     {
-        // 30 طلب - كل العلاقات مترابطة (user, restaurant, driver, address)
         $customerIds = DB::table('users')->where('role', 'customer')->pluck('id');
         $restaurantIds = DB::table('restaurants')->pluck('id');
         $driverIds = DB::table('drivers')->pluck('id');
-        $statuses = ['pending', 'accepted', 'picked_up', 'delivered'];
+
+        // الحالات الجديدة حسب الـ Migration
+        $statuses = ['pending', 'preparing', 'picked_up', 'delivered'];
 
         for ($i = 1; $i <= 30; $i++) {
             $userId = $customerIds->random();

@@ -16,7 +16,8 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             GovernorateSeeder::class,
             CustomerProfileSeeder::class,
-            DriverSeeder::class,
+            DriverSeeder::class,           // ← أولاً
+            DriverDocumentSeeder::class,
             UserAddressSeeder::class,
             RestaurantSeeder::class,
             MenuSectionSeeder::class,

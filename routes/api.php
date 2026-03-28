@@ -141,32 +141,32 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::get('/ads', [CustomerAdController::class, 'index']);
 
 
-            // راوتات السلة (Cart)
-            Route::prefix('cart')->group(function () {
-                Route::get('/', [CustomerCartController::class, 'index']);
-                Route::post('/items', [CustomerCartController::class, 'store']);
-                Route::delete('/items/{id}', [CustomerCartController::class, 'destroy']);
-                Route::delete('/', [CustomerCartController::class, 'clear']);
-            });
+        // راوتات السلة (Cart)
+        Route::prefix('cart')->group(function () {
+            Route::get('/', [CustomerCartController::class, 'index']);
+            Route::post('/items', [CustomerCartController::class, 'store']);
+            Route::delete('/items/{id}', [CustomerCartController::class, 'destroy']);
+            Route::delete('/', [CustomerCartController::class, 'clear']);
+        });
 
-            // راوت إنشاء الطلب
-            Route::post('/checkout', [CustomerOrderController::class, 'checkout']);
-            Route::put('/orders/{id}/cancel', [CustomerOrderController::class, 'cancel']);
-            Route::get('/orders', [CustomerOrderController::class, 'index']);
-            Route::get('/orders/{id}', [CustomerOrderController::class, 'show']);
+        // راوت إنشاء الطلب
+        Route::post('/checkout', [CustomerOrderController::class, 'checkout']);
+        Route::put('/orders/{id}/cancel', [CustomerOrderController::class, 'cancel']);
+        Route::get('/orders', [CustomerOrderController::class, 'index']);
+        Route::get('/orders/{id}', [CustomerOrderController::class, 'show']);
 
-            Route::get('/favorites', [CustomerFavoriteController::class, 'index']);
-            Route::post('/favorites/restaurants/{id}', [CustomerFavoriteController::class, 'toggleRestaurant']);
-            Route::post('/favorites/items/{id}', [CustomerFavoriteController::class, 'toggleItem']);
+        Route::get('/favorites', [CustomerFavoriteController::class, 'index']);
+        Route::post('/favorites/restaurants/{id}', [CustomerFavoriteController::class, 'toggleRestaurant']);
+        Route::post('/favorites/items/{id}', [CustomerFavoriteController::class, 'toggleItem']);
 
-            Route::post('/search', [CustomerSearchController::class, 'searchMeals']);
+        Route::post('/search', [CustomerSearchController::class, 'searchMeals']);
 
-            Route::get('/items/{id}', [MenuController::class, 'showItem']);
-            Route::get('/trackOrder/{id}', [CustomerOrderController::class, 'trackOrder']);
+        Route::get('/items/{id}', [MenuController::class, 'showItem']);
+        Route::get('/trackOrder/{id}', [CustomerOrderController::class, 'trackOrder']);
 
-            Route::get('/reviews', [CustomerReviewController::class, 'index']);
-            Route::post('/orders/{orderId}/review', [CustomerReviewController::class, 'store']);
-            Route::delete('/reviews/{id}', [CustomerReviewController::class, 'destroy']);
+        Route::get('/reviews', [CustomerReviewController::class, 'index']);
+        Route::post('/orders/{orderId}/review', [CustomerReviewController::class, 'store']);
+        Route::delete('/reviews/{id}', [CustomerReviewController::class, 'destroy']);
 
 
 
@@ -193,7 +193,6 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::get('/restaurants', [CustomerRestaurantController::class, 'index']);
         Route::get('/restaurants/{id}', [CustomerRestaurantController::class, 'show']);
     });
-
 });  // Closed the auth:sanctum middleware group and not.banned middleware group
 
 Route::prefix('driver')->group(function () {
@@ -212,12 +211,13 @@ Route::prefix('driver')->group(function () {
 
         // عرض الطلبات المتاحة للسائق
         Route::get('available-orders', [HomePageController::class, 'getAvailableOrders']);
-
         // قبول طلب معين
         Route::post('orders/{id}/accept', [HomePageController::class, 'acceptOrder']);
-
+        //رفض طلب معين
         Route::post('orders/{id}/reject', [HomePageController::class, 'rejectOrder']);
-
-        });
-        });
-
+        // استلام الطلب من المطعم (يتطلب رفع صورة الفاتورة)
+        Route::post('orders/{id}/pickup', [HomePageController::class, 'pickupOrder']);
+        //تسليم الطلب للزبون
+        Route::post('orders/{id}/deliver', [HomePageController::class, 'deliverOrder']);
+    });
+});

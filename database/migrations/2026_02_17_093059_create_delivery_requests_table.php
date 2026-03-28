@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('required_vehicle_type')->nullable();
             // pending: قيد الانتظار | accepted: مقبول | picked_up: تم الاستلام | delivered: تم التوصيل
             $table->enum('status', ['pending', 'accepted', 'picked_up', 'delivered'])->default('pending')->index();
-
+            $table->string('invoice_image')->nullable();
             $table->timestamps();
 
             $table->index(['driver_id', 'status']);

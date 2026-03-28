@@ -140,13 +140,14 @@ namespace App\Models{
 /**
  * @property int $id
  * @property int $order_id
- * @property int $driver_id
+ * @property int|null $driver_id
  * @property numeric $offered_delivery_fee
  * @property string|null $required_vehicle_type
  * @property string $status
+ * @property string|null $invoice_image
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Driver $driver
+ * @property-read \App\Models\Driver|null $driver
  * @property-read \App\Models\Order $order
  * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryRequest newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryRequest newQuery()
@@ -154,6 +155,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryRequest whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryRequest whereDriverId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryRequest whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryRequest whereInvoiceImage($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryRequest whereOfferedDeliveryFee($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryRequest whereOrderId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryRequest whereRequiredVehicleType($value)
@@ -172,11 +174,16 @@ namespace App\Models{
  * @property numeric $total_earnings
  * @property string $vehicle_type
  * @property string|null $vehicle_plate_number
- * @property string|null $license_image
  * @property numeric|null $current_lat
  * @property numeric|null $current_lng
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\DriverDocument> $documents
+ * @property-read int|null $documents_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Order> $orders
+ * @property-read int|null $orders_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Review> $reviews
+ * @property-read int|null $reviews_count
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver newQuery()
@@ -187,7 +194,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereCurrentLng($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereIsOnline($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereLicenseImage($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereTotalEarnings($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereUserId($value)
@@ -195,6 +201,30 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereVehicleType($value)
  */
 	class Driver extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $driver_id
+ * @property string $document_type
+ * @property string $file_path
+ * @property string $status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Driver $driver
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DriverDocument newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DriverDocument newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DriverDocument query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DriverDocument whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DriverDocument whereDocumentType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DriverDocument whereDriverId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DriverDocument whereFilePath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DriverDocument whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DriverDocument whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DriverDocument whereUpdatedAt($value)
+ */
+	class DriverDocument extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -492,6 +522,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Driver|null $driver
+ * @property-read \App\Models\Order $order
  * @property-read \App\Models\Restaurant|null $restaurant
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review newModelQuery()

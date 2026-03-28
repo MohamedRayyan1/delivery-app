@@ -9,21 +9,20 @@ use App\Repositories\Eloquent\HomePageRepository;
 use App\Services\Driver\GeoapifyDistanceService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class HomePageService
 {
     protected $repository;
-    protected $distanceService;     // ← أضف هذا
+    protected $distanceService;
 
     public function __construct(
         HomePageRepository $repository,
-        GeoapifyDistanceService $distanceService   // ← Dependency Injection
+        GeoapifyDistanceService $distanceService
     ) {
         $this->repository = $repository;
         $this->distanceService = $distanceService;
     }
-
-
     public function getFormattedOrders(string $city)
     {
         $user = Auth::user();
@@ -75,39 +74,93 @@ class HomePageService
         })->values(); // إعادة ترتيب مفاتيح المصفوفة بعد الحذف (Filter)
     }
 
-    public function acceptOrder(int $requestId, int $driverId)
+    public function acceptOrder(int $requestId, int $driverId): bool
     {
-        if ($this->repository->acceptDeliveryRequest($requestId, $driverId)) {
+        $accepted = $this->repository->acceptDeliveryRequest($requestId, $driverId);
 
-            $deliveryRequest = DeliveryRequest::find($requestId);
-
-            $city = Auth::user()->city;
-
-            event(new OrderAccepted($deliveryRequest->order_id, $city));
-
-            \Cache::forget("driver_orders_{$city}_*");
-
-            return true;
+        if (!$accepted) {
+            return false;
         }
-        return false;
-    }
+        $deliveryRequest = DeliveryRequest::find($requestId);
 
-    public function rejectOrder(int $orderId)
-    {
-        $driverId = Auth::id();
-        $cacheKey = "driver_{$driverId}_rejected_orders";
+        $city = Auth::user()->city;
+        event(new OrderAccepted($deliveryRequest->order_id, $city));
 
-        // جلب القائمة الحالية وإضافة الـ ID الجديد
-        $rejectedIds = Cache::get($cacheKey, []);
-        if (!in_array($orderId, $rejectedIds)) {
-            $rejectedIds[] = $orderId;
-            // تخزينها لمدة 24 ساعة (عمر افتراضي كافٍ لطلب طعام)
-            Cache::put($cacheKey, $rejectedIds, now()->addDay());
-        }
-
-        // مسح كاش القائمة لهذا السائق ليختفي الطلب فوراً
-        Cache::forget("driver_orders_" . Auth::user()->city . "_{$driverId}_*");
+        // تنظيف الكاش
+        \Cache::forget("driver_orders_{$city}_*");
 
         return true;
+    }
+
+    public function rejectOrder(int $requestId)
+    {
+        $driverId = Auth::id();
+        $cacheKey = "driver_{$driverId}_rejected_requests";
+
+        $rejectedIds = Cache::get($cacheKey, []);
+
+        if (!in_array($requestId, $rejectedIds)) {
+            $rejectedIds[] = $requestId;
+            // تخزين لمدة 6 ساعات مثلاً (عمر الطلب)
+            Cache::put($cacheKey, $rejectedIds, now()->addHours(6));
+        }
+
+        return true;
+    }
+
+
+    // HomePageService.php
+
+    public function pickupOrder(int $requestId, int $driverId, $imageFile)
+    {
+        return \DB::transaction(function () use ($requestId, $driverId, $imageFile) {
+
+            // 1. رفع الصورة الأصلية في مسارها
+            $path = $imageFile->store('delivery/invoices', 'public');
+
+            // 2. تحديث قاعدة البيانات عبر الـ Repository
+            $deliveryRequest = $this->repository->markAsPickedUp($requestId, $driverId, $path);
+
+            if (!$deliveryRequest) {
+                \Storage::disk('public')->delete($path); // حذف الصورة إذا فشل التحديث
+                throw new \Exception('عذراً، لا يمكن استلام هذا الطلب حالياً.');
+            }
+
+            // 3. إرسال المهمة للـ Queue لمعالجة الصورة
+            dispatch(new \App\Jobs\ProcessImageJob($deliveryRequest, 'invoice_image', $path));
+
+            return $deliveryRequest;
+        });
+    }
+
+
+    // HomePageService.php
+
+    public function deliverOrder(int $requestId, int $driverId, string $confirmationCode)
+    {
+        // 1. جلب الطلب المرتبط بطلب التوصيل للتحقق من الكود
+        $deliveryRequest = DeliveryRequest::with('order')->find($requestId);
+
+        if (!$deliveryRequest || $deliveryRequest->driver_id !== $driverId) {
+            throw new \Exception('عذراً، هذا الطلب غير تابع لك.');
+        }
+
+        if ($deliveryRequest->status !== 'picked_up') {
+            throw new \Exception('لا يمكن توصيل طلب لم يتم استلامه من المطعم بعد.');
+        }
+
+        // 2. التحقق من كود التأكيد
+        if ($deliveryRequest->order->delivery_confirmation_code !== $confirmationCode) {
+            throw new \Exception('كود التحقق غير صحيح، يرجى التأكد من الزبون.');
+        }
+
+        // 3. تنفيذ التحديث في قاعدة البيانات
+        $updatedRequest = $this->repository->markAsDelivered($requestId, $driverId);
+
+        if (!$updatedRequest) {
+            throw new \Exception('حدث خطأ أثناء تحديث حالة الطلب.');
+        }
+
+        return $updatedRequest;
     }
 }
