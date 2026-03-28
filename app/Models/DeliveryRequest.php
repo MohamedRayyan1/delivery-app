@@ -10,19 +10,25 @@ class DeliveryRequest extends Model
     use HasFactory;
 
     protected $fillable = [
-        'order_id', 'driver_id', 'offered_delivery_fee',
-        'required_vehicle_type', 'status'
+        'order_id',
+        'driver_id',
+        'offered_delivery_fee',
+        'required_vehicle_type',
+        'status',
+        'invoice_image'
     ];
 
     protected $casts = [
         'offered_delivery_fee' => 'decimal:2',
     ];
 
-    public function driver() {
+    public function driver()
+    {
         return $this->belongsTo(Driver::class);
     }
 
-    public function order() {
+    public function order()
+    {
         return $this->belongsTo(Order::class);
     }
 }
