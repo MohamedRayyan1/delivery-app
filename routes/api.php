@@ -16,9 +16,15 @@ use App\Http\Controllers\Api\Customer\CustomerAdController;
 use App\Http\Controllers\Api\Customer\CustomerCartController;
 use App\Http\Controllers\Api\Customer\CustomerFavoriteController;
 use App\Http\Controllers\Api\Customer\CustomerOrderController;
+use App\Http\Controllers\Api\Customer\CustomerReviewController;
 use App\Http\Controllers\Api\Customer\CustomerSearchController;
 use App\Http\Controllers\Api\Customer\CustomerSectionController;
 use App\Http\Controllers\Api\Vendor\VendorExtraController;
+use App\Http\Controllers\Api\Driver\DriverAuthController;
+use App\Http\Controllers\Api\Driver\DriverEarningsController;
+use App\Http\Controllers\Api\Driver\DriverHomeController;
+use App\Http\Controllers\Api\Driver\DriverProfileController;
+use App\Http\Controllers\Api\Driver\DriverStatusController;
 use App\Http\Controllers\Api\Driver\HomePageController;
 
 // 1. (Public)
@@ -83,8 +89,8 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
                 Route::put('/{id}', [AdminCouponController::class, 'update']);
                 Route::delete('/{id}', [AdminCouponController::class, 'destroy']);
             });
-        }); //
-    }); //
+        }); // admin middleware
+    }); //admin prefix
 
 
 
@@ -96,7 +102,6 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
 
         Route::get('/profile', [VendorProfileController::class, 'show']);
         Route::put('/profile', [VendorProfileController::class, 'update']);
-
 
 
         // Sub-Sections
@@ -136,13 +141,34 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::get('/ads', [CustomerAdController::class, 'index']);
 
 
-        // راوتات السلة (Cart)
-        Route::prefix('cart')->group(function () {
-            Route::get('/', [CustomerCartController::class, 'index']);
-            Route::post('/items', [CustomerCartController::class, 'store']);
-            Route::delete('/items/{id}', [CustomerCartController::class, 'destroy']);
-            Route::delete('/', [CustomerCartController::class, 'clear']);
-        });
+            // راوتات السلة (Cart)
+            Route::prefix('cart')->group(function () {
+                Route::get('/', [CustomerCartController::class, 'index']);
+                Route::post('/items', [CustomerCartController::class, 'store']);
+                Route::delete('/items/{id}', [CustomerCartController::class, 'destroy']);
+                Route::delete('/', [CustomerCartController::class, 'clear']);
+            });
+
+            // راوت إنشاء الطلب
+            Route::post('/checkout', [CustomerOrderController::class, 'checkout']);
+            Route::put('/orders/{id}/cancel', [CustomerOrderController::class, 'cancel']);
+            Route::get('/orders', [CustomerOrderController::class, 'index']);
+            Route::get('/orders/{id}', [CustomerOrderController::class, 'show']);
+
+            Route::get('/favorites', [CustomerFavoriteController::class, 'index']);
+            Route::post('/favorites/restaurants/{id}', [CustomerFavoriteController::class, 'toggleRestaurant']);
+            Route::post('/favorites/items/{id}', [CustomerFavoriteController::class, 'toggleItem']);
+
+            Route::post('/search', [CustomerSearchController::class, 'searchMeals']);
+
+            Route::get('/items/{id}', [MenuController::class, 'showItem']);
+            Route::get('/trackOrder/{id}', [CustomerOrderController::class, 'trackOrder']);
+
+            Route::get('/reviews', [CustomerReviewController::class, 'index']);
+            Route::post('/orders/{orderId}/review', [CustomerReviewController::class, 'store']);
+            Route::delete('/reviews/{id}', [CustomerReviewController::class, 'destroy']);
+
+
 
         // راوت إنشاء الطلب
         Route::post('/checkout', [CustomerOrderController::class, 'checkout']);
@@ -157,9 +183,7 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::post('/search', [CustomerSearchController::class, 'searchMeals']);
 
         Route::get('/items/{id}', [MenuController::class, 'showItem']);
-    });
-    // customer
-    Route::prefix('customer')->group(function () {
+
         // إلغاء home القديم واستبداله بـ APIات الأقسام
         Route::get('/sections', [CustomerSectionController::class, 'index']);
 
@@ -170,7 +194,22 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::get('/restaurants/{id}', [CustomerRestaurantController::class, 'show']);
     });
 
-    Route::prefix('driver')->group(function () {
+});  // Closed the auth:sanctum middleware group and not.banned middleware group
+
+Route::prefix('driver')->group(function () {
+
+    Route::post('/register', [DriverAuthController::class, 'register']);
+
+
+    Route::middleware(['auth:sanctum'])->group(function () {
+
+        Route::put('/profile', [DriverProfileController::class, 'update']);
+        Route::get('/profile', [DriverProfileController::class, 'showProfile']);
+        Route::put('/status/online', [DriverStatusController::class, 'toggleOnline']);
+        Route::put('/earnings', [DriverEarningsController::class, 'index']);
+
+        Route::get('/transactions', [DriverEarningsController::class, 'transactions']);
+
         // عرض الطلبات المتاحة للسائق
         Route::get('available-orders', [HomePageController::class, 'getAvailableOrders']);
 
@@ -178,5 +217,7 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::post('orders/{id}/accept', [HomePageController::class, 'acceptOrder']);
 
         Route::post('orders/{id}/reject', [HomePageController::class, 'rejectOrder']);
-    });
-});  // Closed the auth:sanctum middleware group
+
+        });
+        });
+

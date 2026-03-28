@@ -12,7 +12,6 @@ class Driver extends Model
         'account_status',
         'vehicle_type',
         'vehicle_plate_number',
-        'license_image',
         'current_lat',
         'current_lng',
         'total_earnings'
@@ -22,6 +21,7 @@ class Driver extends Model
         'is_online' => 'boolean',
         'current_lat' => 'decimal:8',
         'current_lng' => 'decimal:8',
+        'total_earnings' => 'decimal:2',
     ];
 
     public function user()
@@ -29,5 +29,18 @@ class Driver extends Model
         return $this->belongsTo(User::class);
     }
 
-    // سنضيف علاقات الطلبات والتقييمات لاحقاً
+    public function documents()
+    {
+        return $this->hasMany(DriverDocument::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

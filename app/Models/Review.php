@@ -18,4 +18,5 @@ class Review extends Model
     public function user() { return $this->belongsTo(User::class); }
     public function restaurant() { return $this->belongsTo(Restaurant::class); }
     public function driver() { return $this->belongsTo(Driver::class); }
+    public function order() { return $this->belongsTo(Order::class); }
 }
