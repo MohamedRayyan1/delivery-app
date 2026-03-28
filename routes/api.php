@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\Vendor\VendorExtraController;
 use App\Http\Controllers\Api\Driver\DriverAuthController;
 use App\Http\Controllers\Api\Driver\DriverEarningsController;
 use App\Http\Controllers\Api\Driver\DriverHomeController;
+use App\Http\Controllers\Api\Driver\DriverOrderHistoryController;
 use App\Http\Controllers\Api\Driver\DriverProfileController;
 use App\Http\Controllers\Api\Driver\DriverStatusController;
 use App\Http\Controllers\Api\Driver\HomePageController;
@@ -218,6 +219,10 @@ Route::prefix('driver')->group(function () {
 
         Route::post('orders/{id}/reject', [HomePageController::class, 'rejectOrder']);
 
-        });
-        });
+        Route::get('/orders/{id}/delivery-summary', [HomePageController::class, 'deliverySummary']);
+
+        Route::get('/orders-history', [DriverOrderHistoryController::class, 'index']);
+
+        }); // Closed the auth:sanctum middleware group
+        }); //closed prefix driver
 

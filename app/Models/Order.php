@@ -39,7 +39,7 @@ class Order extends Model
         return $this->belongsTo(Restaurant::class);
     }
 
-    public function address() { 
+    public function address() {
         return $this->belongsTo(UserAddress::class, 'address_id');
     }
 
@@ -49,6 +49,11 @@ class Order extends Model
 
     public function items() {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function review()
+    {
+        return $this->hasOne(Review::class);
     }
 
     // --- الحسابات الديناميكية (Accessors) ---

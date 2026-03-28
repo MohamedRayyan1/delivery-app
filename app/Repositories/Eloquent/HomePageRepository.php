@@ -50,4 +50,19 @@ class HomePageRepository
             return true;
         });
     }
+
+    public function getDeliveredOrderSummary(int $driverId, int $orderId)
+    {
+        return Order::with([
+                'restaurant:id,name',
+                'address',
+                'review' => function ($query) use ($driverId) {
+                    $query->where('driver_id', $driverId)->select('id', 'order_id', 'driver_rating');
+                }
+            ])
+            ->where('id', $orderId)
+            ->where('driver_id', $driverId)
+            ->firstOrFail();
+    }
+    
 }

@@ -21,8 +21,12 @@ return new class extends Migration
 
             // الحالة
             $table->string('delivery_confirmation_code')->nullable();
-            $table->string('status')->default('pending')->index();
-
+            $table->enum('status', [
+                'pending',          // قيد الانتظار (عند وصول الطلب)
+                'preparing',        // قيد التحضير (عند قبول المطعم)
+                'picked_up',        // قيد التوصيل (عندما يأخذ السائق الطلب)
+                'delivered'         // تم التوصيل (عندما يستلمه الزبون)
+            ])->default('pending')->index();
             // الدفع
             $table->string('payment_method');
             $table->string('payment_status')->default('unpaid')->index();

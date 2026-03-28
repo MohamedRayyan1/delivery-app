@@ -9,7 +9,6 @@ class DriverSeeder extends Seeder
 {
     public function run(): void
     {
-        // مرتبط مع users (role = driver) - 5 سطر
         $driverUserIds = DB::table('users')->where('role', 'driver')->pluck('id');
 
         foreach ($driverUserIds as $userId) {
@@ -20,7 +19,6 @@ class DriverSeeder extends Seeder
                 'total_earnings' => rand(15000, 85000),
                 'vehicle_type' => rand(0, 1) ? 'motorcycle' : 'car',
                 'vehicle_plate_number' => 'SY-' . rand(100, 999),
-                'license_image' => null,
                 'current_lat' => 33.5138 + (rand(-50, 50) / 1000),
                 'current_lng' => 36.2765 + (rand(-50, 50) / 1000),
                 'created_at' => now(),

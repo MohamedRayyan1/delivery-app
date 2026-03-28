@@ -7,6 +7,7 @@ use App\Models\DeliveryRequest;
 use App\Models\Order;
 use App\Repositories\Eloquent\HomePageRepository;
 use App\Services\Driver\GeoapifyDistanceService;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
@@ -106,4 +107,16 @@ class HomePageService
 
         return true;
     }
+
+    public function getDeliverySummary(int $driverId, int $orderId)
+    {
+        $order = $this->repository->getDeliveredOrderSummary($driverId, $orderId);
+
+        if ($order->status !== 'delivered') {
+            throw new Exception('لا يمكن عرض ملخص التسليم لطلب لم يكتمل بعد.');
+        }
+
+        return $order;
+    }
+
 }

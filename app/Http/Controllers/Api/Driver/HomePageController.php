@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Driver\AvailableOrderResource;
+use App\Http\Resources\Driver\DriverDeliverySummaryResource;
 use App\Services\Driver\HomePageService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Support\Facades\Auth;
+use Request;
 
 class HomePageController extends Controller
 {
@@ -43,4 +45,21 @@ class HomePageController extends Controller
         $this->service->rejectOrder($id);
         return $this->successResponse(null, 'تم إخفاء الطلب من قائمتك.');
     }
+
+    public function deliverySummary(Request $request, int $id)
+    {
+
+        try {
+            $order = $this->service->getDeliverySummary(Auth::user()->driver->id, $id);
+        
+            return $this->successResponse(new DriverDeliverySummaryResource($order));
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'الطلب غير موجود أو لا تملك صلاحية الوصول إليه: ' . $e->getMessage()
+            ], 404);
+        }
+    }
+
 }
