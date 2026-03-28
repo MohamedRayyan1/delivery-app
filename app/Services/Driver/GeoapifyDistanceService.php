@@ -22,12 +22,14 @@ class GeoapifyDistanceService
     }
 
     /**
-     * حساب المسافة + الزمن الطرقي باستخدام Geoapify
+     * حساب المسافة + الزمن الطرقي باستخدام Geoapify حصراً
      *
      * @return array { distance_km: float, duration_minutes: int }
+     * @throws Exception في حال فشل الخدمة الخارجية
      */
     public function calculateDistance(float $lat1, float $lng1, float $lat2, float $lng2): array
     {
+        // إذا كانت الإحداثيات متطابقة تماماً، نوفر استدعاء الـ API
         if (abs($lat1 - $lat2) < 0.0001 && abs($lng1 - $lng2) < 0.0001) {
             return ['distance_km' => 0.0, 'duration_minutes' => 0];
         }
@@ -38,7 +40,7 @@ class GeoapifyDistanceService
                 'sources' => [['location' => [$lng1, $lat1]]],
                 'targets' => [['location' => [$lng2, $lat2]]]
             ];
-
+            // \Log::info("Requesting Geoapify for: " . json_encode($payload));
             $response = Http::timeout(10)
                 ->post("https://api.geoapify.com/v1/routematrix?apiKey={$this->apiKey}", $payload);
 
@@ -48,58 +50,58 @@ class GeoapifyDistanceService
                 if (isset($data['sources_to_targets'][0][0])) {
                     $result = $data['sources_to_targets'][0][0];
 
+                    // التحقق من وجود خطأ في المصفوفة نفسها (مثل عدم وجود طريق)
+                    if (isset($result['error'])) {
+                        throw new Exception('Geoapify Route Error: ' . ($result['error'] ?? 'No route found'));
+                    }
+
                     $distanceMeters = $result['distance'] ?? 0;
                     $timeSeconds    = $result['time'] ?? 0;
 
                     return [
-                        'distance_km'     => round($distanceMeters / 1000, 2),
-                        'duration_minutes' => (int) round($timeSeconds / 60),   // تحويل إلى دقائق
+                        'distance_km'      => round($distanceMeters / 1000, 2),
+                        'duration_minutes' => (int) round($timeSeconds / 60),
                     ];
                 }
             }
 
-            Log::warning('Geoapify failed - using fallback');
+            // في حال فشل الاستجابة أو كانت غير مكتملة
+            throw new Exception('Geoapify API failed or returned invalid data');
         } catch (Exception $e) {
-            Log::error('Geoapify Distance Error', ['message' => $e->getMessage()]);
+            Log::error('Geoapify Critical Error', [
+                'message' => $e->getMessage(),
+                'coords' => "from ($lat1, $lng1) to ($lat2, $lng2)"
+            ]);
+
+            // نعيد قيم صفرية أو نرفع الخطأ حسب رغبتك في معالجة الخطأ في الـ Service
+            // هنا سنعيد 999 كم لضمان استبعاد الطلب من الفلترة في حال تعطل الخدمة
+            return ['distance_km' => 999.0, 'duration_minutes' => 999];
         }
-
-        // Fallback (Haversine للمسافة فقط + تقدير زمن بسيط)
-        $distanceKm = $this->haversineFallback($lat1, $lng1, $lat2, $lng2);
-        $estimatedMinutes = max(1, (int) round($distanceKm * 2.5)); // تقدير 2.5 دقيقة لكل كم
-
-        return [
-            'distance_km'     => $distanceKm,
-            'duration_minutes' => $estimatedMinutes,
-        ];
     }
 
-    private function haversineFallback(float $lat1, float $lng1, float $lat2, float $lng2): float
-    {
-        $earthRadius = 6371;
-        $dLat = deg2rad($lat2 - $lat1);
-        $dLng = deg2rad($lng2 - $lng1);
-
-        $a = sin($dLat / 2) ** 2 + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLng / 2) ** 2;
-        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-
-        return round($earthRadius * $c, 2);
-    }
-
-    // داخل GeoapifyDistanceService.php
-
+    /**
+     * حساب المصفوفة لعدة أهداف بضربة واحدة
+     */
     public function calculateMatrix(array $source, array $driversLocations)
     {
-        // $source = ['location' => [lng, lat]]
-        // $driversLocations = [ ['location' => [lng, lat]], ... ]
+        try {
+            $payload = [
+                'mode' => 'drive',
+                'sources' => [$source],
+                'targets' => $driversLocations
+            ];
 
-        $payload = [
-            'mode' => 'drive',
-            'sources' => [$source],
-            'targets' => $driversLocations
-        ];
+            $response = Http::timeout(15)
+                ->post("https://api.geoapify.com/v1/routematrix?apiKey={$this->apiKey}", $payload);
 
-        $response = Http::post("https://api.geoapify.com/v1/routematrix?apiKey={$this->apiKey}", $payload);
+            if ($response->failed()) {
+                throw new Exception('Geoapify Matrix API failed');
+            }
 
-        return $response->json(); // ستحتوي النتيجة على المسافات لكل الأهداف (السائقين) بضربة واحدة
+            return $response->json();
+        } catch (Exception $e) {
+            Log::error('Geoapify Matrix Error', ['message' => $e->getMessage()]);
+            return null;
+        }
     }
 }

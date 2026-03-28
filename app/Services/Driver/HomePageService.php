@@ -23,56 +23,56 @@ class HomePageService
         $this->distanceService = $distanceService;
     }
 
-    // داخل HomePageService.php
 
     public function getFormattedOrders(string $city)
     {
         $user = Auth::user();
         $driverId = $user->id;
+
+        // جلب موقع السائق اللحظي ونوع مركبته
         $driverLat = $user->driver->current_lat;
         $driverLng = $user->driver->current_lng;
-
         $vehicleType = $user->driver->vehicle_type;
+
+        // جلب المعرفات التي رفضها السائق لعدم تكرارها
         $rejectedIds = Cache::get("driver_{$driverId}_rejected_requests", []);
 
-        $lastUpdate = DeliveryRequest::max('updated_at') ?: 'initial';
-        $cacheKey = "driver_reqs_{$city}_{$driverId}_{$lastUpdate}";
+        // 1. جلب الطلبات الخام من قاعدة البيانات (فلترة أولية بالمدينة ونوع المركبة)
+        $requests = $this->repository->getAvailableDeliveryRequestsByCity($city, $vehicleType, $rejectedIds);
 
-        return Cache::remember($cacheKey, now()->addMinutes(1), function () use ($city, $vehicleType, $rejectedIds, $driverLat, $driverLng) {
-            // جلب الطلبات المتاحة في المدينة
-            $requests = $this->repository->getAvailableDeliveryRequestsByCity($city, $vehicleType, $rejectedIds);
+        // 2. تطبيق الفلترة الجغرافية (نطاق 5 كم)
+        return $requests->filter(function ($request) use ($driverLat, $driverLng) {
+            $restaurant = $request->order->restaurant;
 
-            // تصفية الطلبات بناءً على مسافة السائق عن المطعم (5 كم)
-            return $requests->filter(function ($request) use ($driverLat, $driverLng) {
-                $restaurant = $request->order->restaurant;
+            // استدعاء الـ API لحساب المسافة من السائق إلى المطعم
+            $distanceToRest = $this->distanceService->calculateDistance(
+                $driverLat,
+                $driverLng,
+                $restaurant->lat,
+                $restaurant->lng
+            );
 
-                // حساب المسافة بين السائق والمطعم
-                $distanceToRest = $this->distanceService->calculateDistance(
-                    $driverLat,
-                    $driverLng,
-                    $restaurant->lat,
-                    $restaurant->lng
-                );
+            // الشرط الصحيح: المسافة يجب أن تكون أصغر من أو تساوي 5 كم
+            return $distanceToRest['distance_km'] <= 5.0;
+        })->map(function ($request) {
+            // 3. تجهيز بيانات العرض للطلبات التي نجحت في الفلترة
+            $order = $request->order;
 
-                // الشرط: يظهر فقط إذا كانت المسافة للمطعم <= 5 كم
-                return $distanceToRest['distance_km'] <= 5.0;
-            })->map(function ($request) {
-                // حساب المسافة الإجمالية للطلب (من المطعم للعميل) لعرضها في التطبيق
-                $order = $request->order;
-                $distData = $this->distanceService->calculateDistance(
-                    $order->restaurant->lat,
-                    $order->restaurant->lng,
-                    $order->address->lat,
-                    $order->address->lng
-                );
+            // حساب المسافة من المطعم إلى منزل العميل (لعرضها للسائق)
+            $distData = $this->distanceService->calculateDistance(
+                $order->restaurant->lat,
+                $order->restaurant->lng,
+                $order->address->lat,
+                $order->address->lng
+            );
 
-                $request->distance_km = $distData['distance_km'];
-                $request->duration_minutes = $distData['duration_minutes'];
-                $request->driver_profit = $request->offered_delivery_fee;
+            // إغناء كائن الطلب بالبيانات المحسوبة
+            $request->distance_km = $distData['distance_km'];
+            $request->duration_minutes = $distData['duration_minutes'];
+            $request->driver_profit = $request->offered_delivery_fee;
 
-                return $request;
-            });
-        });
+            return $request;
+        })->values(); // إعادة ترتيب مفاتيح المصفوفة بعد الحذف (Filter)
     }
 
     public function acceptOrder(int $orderId, int $driverId)

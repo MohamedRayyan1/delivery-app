@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\DeliveryRequest;
 use App\Models\Order;
 use App\Models\Restaurant;
 use App\Models\Review;
+use App\Observers\DeliveryRequestObserver;
 use App\Observers\OrderObserver;
 use App\Observers\RestaurantObserver;
 use App\Observers\ReviewObserver;
@@ -49,6 +51,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Restaurant::observe(RestaurantObserver::class);
-
+        DeliveryRequest::observe(DeliveryRequestObserver::class);
     }
 }
