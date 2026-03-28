@@ -9,6 +9,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\Middleware\RateLimited;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
@@ -23,6 +24,13 @@ class NotifyNearbyDriversJob implements ShouldQueue
         $this->deliveryRequest = $deliveryRequest;
     }
 
+    // عدد مرات إعادة المحاولة في حال فشل الـ API
+    public $tries = 3;
+
+    // عدد الثواني للانتظار قبل إعادة المحاولة
+    public $backoff = 10;
+    // حذف المهمة إذا فشلت تماماً لمنع تكدس الطابور
+    public $deleteWhenMissingModels = true;
     public function handle(GeoapifyDistanceService $distanceService): void
     {
         $request = $this->deliveryRequest;
@@ -69,5 +77,13 @@ class NotifyNearbyDriversJob implements ShouldQueue
         } catch (\Exception $e) {
             Log::error("Matrix API Error in Job: " . $e->getMessage());
         }
+    }
+
+    /**
+     * الحصول على الوسيط الذي يجب أن تمر من خلاله الوظيفة.
+     */
+    public function middleware(): array
+    {
+        return [new RateLimited('geoapify-limiter')];
     }
 }
