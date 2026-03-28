@@ -75,14 +75,18 @@ class HomePageService
         })->values(); // إعادة ترتيب مفاتيح المصفوفة بعد الحذف (Filter)
     }
 
-    public function acceptOrder(int $orderId, int $driverId)
+    public function acceptOrder(int $requestId, int $driverId)
     {
-        if ($this->repository->acceptDeliveryRequest($orderId, $driverId)) {
-            $city = Auth::user()->city;
-            event(new OrderAccepted($orderId, $city));
+        if ($this->repository->acceptDeliveryRequest($requestId, $driverId)) {
 
-            // مسح الكاش العام للمدينة
+            $deliveryRequest = DeliveryRequest::find($requestId);
+
+            $city = Auth::user()->city;
+
+            event(new OrderAccepted($deliveryRequest->order_id, $city));
+
             \Cache::forget("driver_orders_{$city}_*");
+
             return true;
         }
         return false;

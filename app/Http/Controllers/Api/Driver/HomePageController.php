@@ -30,12 +30,12 @@ class HomePageController extends Controller
     }
 
 
-    public function acceptOrder($id)
+    public function acceptOrder($requestId)
     {
-        if ($this->service->acceptOrder($id, Auth::id())) {
+        if ($this->service->acceptOrder($requestId, Auth::user()->driver->id)) {
             return $this->successResponse(null, 'تم قبول الطلب بنجاح!');
         }
-        return $this->errorResponse('عذراً، الطلب لم يعد متاحاً.', 400);
+        return $this->errorResponse('عذراً، الطلب لم يعد متاحاً أو سبَقَك إليه سائق آخر.', 400);
     }
 
     public function rejectOrder($id)
