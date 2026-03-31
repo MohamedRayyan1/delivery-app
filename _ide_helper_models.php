@@ -481,6 +481,8 @@ namespace App\Models{
  * @property-read \App\Models\User $manager
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Order> $orders
  * @property-read int|null $orders_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Review> $reviews
+ * @property-read int|null $reviews_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MenuSection> $sections
  * @property-read int|null $sections_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SubMenuSection> $subMenuSections

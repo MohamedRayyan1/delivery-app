@@ -28,6 +28,7 @@ use App\Http\Controllers\Api\Driver\DriverProfileController;
 use App\Http\Controllers\Api\Driver\DriverStatusController;
 use App\Http\Controllers\Api\Driver\HomePageController;
 use App\Http\Controllers\Api\Vendor\DashboardController;
+use App\Http\Controllers\Api\Vendor\RestaurantReportController;
 
 // 1. (Public)
 Route::post('/register', [AuthController::class, 'register']);
@@ -133,6 +134,11 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::get('dashboard', [DashboardController::class, 'overview']);
         Route::get('dashboard/top-items', [DashboardController::class, 'allTopSellingItems']);
         Route::get('/dashboard/sales-performance', [DashboardController::class, 'salesPerformance']);
+
+        //Reports
+        Route::get('/reports/overview', [RestaurantReportController::class, 'cards']);
+        Route::get('/reports/monthlyGrowth', [RestaurantReportController::class, 'monthlyGrowth']);
+        Route::get('/restaurant/report/pdf', [RestaurantReportController::class, 'downloadPdf']);
     }); // Closed the vendor middleware group
 
     // customer
