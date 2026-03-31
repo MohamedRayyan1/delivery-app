@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\Driver\DriverOrderHistoryController;
 use App\Http\Controllers\Api\Driver\DriverProfileController;
 use App\Http\Controllers\Api\Driver\DriverStatusController;
 use App\Http\Controllers\Api\Driver\HomePageController;
+use App\Http\Controllers\Api\Vendor\DashboardController;
 
 // 1. (Public)
 Route::post('/register', [AuthController::class, 'register']);
@@ -128,6 +129,10 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
             Route::post('/{id}', [VendorAdController::class, 'update']);
             Route::delete('/{id}', [VendorAdController::class, 'destroy']);
         });
+        //Dashboard
+        Route::get('dashboard', [DashboardController::class, 'overview']);
+        Route::get('dashboard/top-items', [DashboardController::class, 'allTopSellingItems']);
+        Route::get('/dashboard/sales-performance', [DashboardController::class, 'salesPerformance']);
     }); // Closed the vendor middleware group
 
     // customer
@@ -220,12 +225,9 @@ Route::prefix('driver')->group(function () {
         Route::get('/orders/{id}/delivery-summary', [HomePageController::class, 'deliverySummary']);
 
         Route::get('/orders-history', [DriverOrderHistoryController::class, 'index']);
-
-
         // استلام الطلب من المطعم (يتطلب رفع صورة الفاتورة)
         Route::post('orders/{id}/pickup', [HomePageController::class, 'pickupOrder']);
         //تسليم الطلب للزبون
         Route::post('orders/{id}/deliver', [HomePageController::class, 'deliverOrder']);
-
-        }); // Closed the auth:sanctum middleware group
-        }); //closed prefix driver
+    }); // Closed the auth:sanctum middleware group
+}); //closed prefix driver

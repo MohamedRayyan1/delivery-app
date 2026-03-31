@@ -1,9 +1,10 @@
 <?php
-// database/seeders/OrderSeeder.php
+
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class OrderSeeder extends Seeder
 {
@@ -13,11 +14,12 @@ class OrderSeeder extends Seeder
         $restaurantIds = DB::table('restaurants')->pluck('id');
         $driverIds = DB::table('drivers')->pluck('id');
 
-        // الحالات الجديدة حسب الـ Migration
         $statuses = ['pending', 'preparing', 'picked_up', 'delivered'];
 
-        for ($i = 1; $i <= 30; $i++) {
+        for ($i = 1; $i <= 50; $i++) {
+
             $userId = $customerIds->random();
+
             $addressId = DB::table('user_addresses')
                 ->where('user_id', $userId)
                 ->inRandomOrder()
@@ -30,6 +32,20 @@ class OrderSeeder extends Seeder
             $deliveryFee = rand(800, 2800);
             $discount = rand(0, (int)($subtotal * 0.25));
             $grandTotal = $subtotal + $deliveryFee - $discount;
+
+            /**
+             * 🔥 أهم تعديل:
+             * توزيع الطلبات على أيام مختلفة
+             */
+            $daysAgo = rand(0, 2); // 0 = اليوم، 1 = أمس، 2 = قبل يومين
+
+            $createdAt = Carbon::now()
+                ->subDays($daysAgo)
+                ->setTime(rand(0, 23), rand(0, 59), rand(0, 59));
+
+            $pickedUpAt = (clone $createdAt)->addMinutes(rand(10, 60));
+            $deliveredAt = (clone $pickedUpAt)->addMinutes(rand(10, 60));
+            $paidAt = (clone $createdAt)->addMinutes(rand(5, 30));
 
             DB::table('orders')->insert([
                 'user_id' => $userId,
@@ -48,11 +64,11 @@ class OrderSeeder extends Seeder
                 'grand_total' => $grandTotal,
                 'applied_restaurant_commission' => 12.50,
                 'applied_driver_share' => 100.00,
-                'picked_up_at' => now()->subHours(rand(2, 48)),
-                'delivered_at' => now()->subHours(rand(1, 72)),
-                'paid_at' => now()->subHours(rand(1, 72)),
-                'created_at' => now()->subDays(rand(1, 30)),
-                'updated_at' => now(),
+                'picked_up_at' => $pickedUpAt,
+                'delivered_at' => $deliveredAt,
+                'paid_at' => $paidAt,
+                'created_at' => $createdAt,
+                'updated_at' => $createdAt,
             ]);
         }
     }

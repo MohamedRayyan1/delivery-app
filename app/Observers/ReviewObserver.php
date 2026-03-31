@@ -3,36 +3,38 @@
 namespace App\Observers;
 
 use App\Models\Review;
-use App\Models\DriverDailyStat;
-use Illuminate\Support\Facades\DB;
+use App\Models\Restaurant;
 
 class ReviewObserver
 {
+    
     public function created(Review $review): void
     {
-        if (!$review->driver_id || !$review->driver_rating) return;
+        // نتحقق أن التقييم يخص مطعماً ولديه تقييم فعلي
+        if ($review->restaurant_id && $review->restaurant_rating) {
 
-        $driverId = $review->driver_id;
-        $rating = (float) $review->driver_rating;
-        // نستخدم تاريخ إنشاء المراجعة أو تاريخ الطلب المرتبط
-        $statDate = $review->created_at->format('Y-m-d');
+            $restaurant = Restaurant::find($review->restaurant_id);
 
-        DB::transaction(function () use ($driverId, $rating, $statDate) {
-            // تحديث إحصائيات اليوم الخاصة بالتقييم
-            DriverDailyStat::upsert(
-                [
-                    [
-                        'driver_id' => $driverId,
-                        'stat_date' => $statDate,
-                        'rating_sum' => $rating,
-                        'rating_count' => 1,
-                        'updated_at' => now(),
-                        'created_at' => now(),
-                    ]
-                ],
-                ['driver_id', 'stat_date'],
-                ['rating_sum' => DB::raw('rating_sum + VALUES(rating_sum)'), 'rating_count' => DB::raw('rating_count + VALUES(rating_count)')]
-            );
-        });
+            if ($restaurant) {
+                // جلب عدد التقييمات السابقة التي لها تقييم للمطعم فقط
+                $oldCount = Review::where('restaurant_id', $restaurant->id)
+                    ->whereNotNull('restaurant_rating')
+                    ->where('id', '!=', $review->id)   // نستثني التقييم الحالي
+                    ->count();
+
+                $oldAvg     = (float) $restaurant->rating;
+                $newRating  = (float) $review->restaurant_rating;
+
+                // الصيغة الرياضية الفعّالة (Incremental Average)
+                $newAvg = $oldCount === 0
+                    ? $newRating
+                    : (($oldAvg * $oldCount) + $newRating) / ($oldCount + 1);
+
+                // تحديث التقييم في جدول المطاعم (بدون إعادة حساب كل التقييمات)
+                $restaurant->update([
+                    'rating' => round($newAvg, 2)
+                ]);
+            }
+        }
     }
 }

@@ -9,15 +9,24 @@ class RestaurantSeeder extends Seeder
 {
     public function run(): void
     {
-        // 20 مطعم - مرتبط مع users (restaurant_manager)
-        $managerIds = DB::table('users')->where('role', 'restaurant_manager')->pluck('id');
+        // جلب جميع الـ IDs للمستخدمين الذين لديهم رتبة vendor
+        // ونقوم بعمل shuffle (ترتيب عشوائي) للمصفوفة لضمان توزيع مختلف في كل مرة
+        $managerIds = DB::table('users')
+            ->where('role', 'vendor')
+            ->pluck('id')
+            ->shuffle();
 
-        for ($i = 1; $i <= 20; $i++) {
-            $managerId = $managerIds->random();
+        // التأكد من أننا لن ننشئ مطاعم أكثر من عدد المديرين المتاحين
+        // لتجنب خطأ الـ Unique Constraint
+        $count = min(20, $managerIds->count());
+
+        for ($i = 0; $i < $count; $i++) {
+            // نأخذ المعرف بالترتيب من المصفوفة المشوشة (ضمان عدم التكرار)
+            $managerId = $managerIds[$i];
 
             DB::table('restaurants')->insert([
                 'manager_user_id' => $managerId,
-                'name' => "مطعم {$i} السوري",
+                'name' => "مطعم " . ($i + 1) . " السوري",
                 'governorate' => 'دمشق',
                 'city' => 'دمشق',
                 'status' => 'active',

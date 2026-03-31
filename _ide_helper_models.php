@@ -378,6 +378,7 @@ namespace App\Models{
  * @property-read int|null $items_count
  * @property-read \App\Models\Restaurant $restaurant
  * @property-read mixed $restaurant_earnings
+ * @property-read \App\Models\Review|null $review
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newQuery()

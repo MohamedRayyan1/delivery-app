@@ -55,7 +55,7 @@ class UserSeeder extends Seeder
                 'phone' => "095" . str_pad($i, 7, '0', STR_PAD_LEFT),
                 'email' => "manager{$i}@example.com",
                 'password' => Hash::make('password'),
-                'role' => 'restaurant_manager',
+                'role' => 'vendor',
                 'city' => 'دمشق',
                 'fcm_token' => null,
                 'is_banned' => false,

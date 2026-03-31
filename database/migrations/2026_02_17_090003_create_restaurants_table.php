@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
 
             // الربط مع المدير
-            $table->foreignId('manager_user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('manager_user_id')->unique()->constrained('users')->cascadeOnDelete();
 
             $table->string('name');
             $table->string('governorate')->index();

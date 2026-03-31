@@ -20,7 +20,7 @@ public function up(): void
         $table->string('password');
 
         // الصلاحيات والبيانات الديموغرافية
-        $table->string('role')->default('customer')->index(); // customer, driver, admin, restaurant_manager
+        $table->string('role')->default('customer')->index(); // customer, driver, admin, vendor
         $table->string('city')->nullable()->index(); // لفلترة المحافظات
 
         // الإشعارات

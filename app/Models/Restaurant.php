@@ -7,9 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 class Restaurant extends Model
 {
     protected $fillable = [
-        'manager_user_id', 'name', 'governorate', 'city', 'status',
-        'logo', 'cover_image', 'description', 'rating',
-        'delivery_cost', 'min_order_price', 'delivery_time', 'is_featured'
+        'manager_user_id',
+        'name',
+        'governorate',
+        'city',
+        'status',
+        'logo',
+        'cover_image',
+        'description',
+        'rating',
+        'delivery_cost',
+        'min_order_price',
+        'delivery_time',
+        'is_featured'
     ];
 
     protected $casts = [
@@ -20,7 +30,8 @@ class Restaurant extends Model
     ];
 
     // العلاقات
-    public function manager() {
+    public function manager()
+    {
         return $this->belongsTo(User::class, 'manager_user_id');
     }
 
@@ -59,4 +70,11 @@ class Restaurant extends Model
     }
 
 
+    /**
+     * التقييمات الخاصة بالمطعم
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
 }

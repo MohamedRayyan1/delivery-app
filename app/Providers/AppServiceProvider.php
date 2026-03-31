@@ -54,6 +54,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Restaurant::observe(RestaurantObserver::class);
         DeliveryRequest::observe(DeliveryRequestObserver::class);
+        Review::observe(ReviewObserver::class);
         RateLimiter::for('geoapify-limiter', function (object $job) {
             // السماح بـ 5 طلبات فقط كل ثانية واحدة
             return Limit::perSecond(5);
