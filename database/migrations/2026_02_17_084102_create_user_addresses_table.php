@@ -11,23 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-Schema::create('user_addresses', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+        Schema::create('user_addresses', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
-    $table->string('label')->nullable(); // البيت، العمل
-    $table->string('street');
-    $table->string('details')->nullable(); // مقابل الصيدلية...
-    $table->string('floor')->nullable();
-    $table->string('phone')->nullable(); // رقم احتياطي
+            $table->string('label')->nullable(); // البيت، العمل
+            $table->string('street');
+            $table->string('details')->nullable(); // مقابل الصيدلية...
+            $table->string('floor')->nullable();
+            $table->string('phone')->nullable(); // رقم احتياطي
 
-    // دقة عالية للخرائط (10 أرقام، 8 منها بعد الفاصلة)
-    $table->decimal('lat', 10, 8);
-    $table->decimal('lng', 11, 8);
+            // دقة عالية للخرائط (10 أرقام، 8 منها بعد الفاصلة)
+            $table->decimal('lat', 10, 8);
+            $table->decimal('lng', 11, 8);
 
-    $table->boolean('is_default')->default(false);
-    $table->timestamps();
-});
+            $table->boolean('is_default')->default(false);
+            $table->softDeletes();
+            $table->timestamps();
+        });
     }
 
     /**

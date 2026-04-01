@@ -18,6 +18,7 @@ class CustomerOrderResource extends JsonResource
             'delivery_fee' => (float)$this->delivery_fee,
             'discount_amount' => (float)$this->discount_amount,
             'grand_total' => (float)$this->grand_total,
+    
             'created_at' => $this->created_at->toDateTimeString(),
 
             // إضافة العنوان هنا

@@ -3,12 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UserAddress extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
-        'user_id', 'label', 'street', 'details',
-        'floor', 'phone', 'lat', 'lng', 'is_default'
+        'user_id',
+        'label',
+        'street',
+        'details',
+        'floor',
+        'phone',
+        'lat',
+        'lng',
+        'is_default'
     ];
 
     protected $casts = [
@@ -17,9 +26,8 @@ class UserAddress extends Model
         'is_default' => 'boolean',
     ];
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
-
-
 }

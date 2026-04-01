@@ -65,7 +65,7 @@ class CustomerOrderService
             }
 
             $grandTotal = ($subtotal + $deliveryFee) - $discountAmount;
-
+            $confirmationCode = (string) random_int(10000, 99999);
             $orderData = [
                 'user_id' => $userId,
                 'restaurant_id' => $cart->restaurant_id,
@@ -80,6 +80,7 @@ class CustomerOrderService
                 'grand_total' => $grandTotal,
                 'applied_restaurant_commission' => 10.00,
                 'applied_driver_share' => 100.00,
+                'delivery_confirmation_code' => $confirmationCode, 
             ];
 
             $order = $this->repository->createOrder($orderData);
@@ -117,17 +118,17 @@ class CustomerOrderService
     }
 
     public function getOrderStatusAndDriver(int $orderId)
-{
-    $order = $this->repository->getOrderTracking($orderId);
+    {
+        $order = $this->repository->getOrderTracking($orderId);
 
-    if (!$order) {
-        return null;
+        if (!$order) {
+            return null;
+        }
+
+        return $order;
     }
 
-    return $order;
-}
-
-public function cancelOrder(int $userId, int $orderId)
+    public function cancelOrder(int $userId, int $orderId)
     {
         return DB::transaction(function () use ($userId, $orderId) {
             $order = $this->repository->getUserOrderById($userId, $orderId);
@@ -145,5 +146,4 @@ public function cancelOrder(int $userId, int $orderId)
             return $this->repository->getUserOrderById($userId, $orderId);
         });
     }
-
 }
