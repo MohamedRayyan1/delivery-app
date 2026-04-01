@@ -133,7 +133,6 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         //Dashboard
         Route::get('dashboard', [DashboardController::class, 'overview']);
         Route::get('dashboard/top-items', [DashboardController::class, 'allTopSellingItems']);
-        Route::get('/dashboard/sales-performance', [DashboardController::class, 'salesPerformance']);
 
         //Reports
         Route::get('/reports/overview', [RestaurantReportController::class, 'cards']);
