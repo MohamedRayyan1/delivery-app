@@ -228,4 +228,9 @@ public function updateItem($id, $resId, $data) {
         return $this->repository->getMenuTree($resId);
     }
 
+    public function getMenu(int $restaurantId)
+    {
+        return $this->repository->getRestaurantMenu($restaurantId);
+    }
+
 }

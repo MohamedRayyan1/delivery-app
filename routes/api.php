@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\OtpController;
 use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\Admin\AdminAdController;
 use App\Http\Controllers\Api\Admin\AdminCouponController;
+use App\Http\Controllers\Api\Admin\AdminGiftController;
 use App\Http\Controllers\Api\Customer\CustomerRestaurantController;
 use App\Http\Controllers\Api\RestaurantController;
 use App\Http\Controllers\Api\ProfileController;
@@ -29,6 +30,7 @@ use App\Http\Controllers\Api\Driver\DriverStatusController;
 use App\Http\Controllers\Api\Driver\HomePageController;
 use App\Http\Controllers\Api\Vendor\DashboardController;
 use App\Http\Controllers\Api\Vendor\RestaurantReportController;
+use App\Http\Controllers\Api\Vendor\VendorOrderController;
 
 // 1. (Public)
 Route::post('/register', [AuthController::class, 'register']);
@@ -88,9 +90,16 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
             });
             Route::prefix('coupons')->group(function () {
                 Route::get('/', [AdminCouponController::class, 'index']);
-                Route::post('/', [AdminCouponController::class, 'store']);
                 Route::put('/{id}', [AdminCouponController::class, 'update']);
                 Route::delete('/{id}', [AdminCouponController::class, 'destroy']);
+                Route::post('/', [AdminCouponController::class, 'store']);
+            });
+
+            Route::prefix('gifts')->group(function () {
+                Route::post('/', [AdminGiftController::class, 'store']);
+                Route::put('/{id}', [AdminGiftController::class, 'update']);
+                Route::delete('/{id}', [AdminGiftController::class, 'destroy']);
+                Route::get('/', [AdminGiftController::class, 'index']);
             });
         }); // admin middleware
     }); //admin prefix
@@ -119,6 +128,7 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::delete('/items/{id}', [MenuController::class, 'destroyItem']);
 
         // //Extra
+        Route::get('/', [VendorExtraController::class, 'index']);
         Route::post('/extras', [VendorExtraController::class, 'store']);
         Route::put('/extras/{id}', [VendorExtraController::class, 'update']);
         Route::delete('/extras/{id}', [VendorExtraController::class, 'destroy']);
@@ -138,6 +148,11 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::get('/reports/overview', [RestaurantReportController::class, 'cards']);
         Route::get('/reports/monthlyGrowth', [RestaurantReportController::class, 'monthlyGrowth']);
         Route::get('/restaurant/report/pdf', [RestaurantReportController::class, 'downloadPdf']);
+
+        Route::get('/orders', [VendorOrderController::class, 'index']);
+
+        Route::get('/v-menu', [MenuController::class, 'indexvendor']);
+
     }); // Closed the vendor middleware group
 
     // customer

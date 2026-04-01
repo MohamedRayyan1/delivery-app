@@ -7,6 +7,7 @@ use App\Http\Requests\Vendor\StoreMenuSectionRequest;
 use App\Http\Requests\Vendor\StoreSubSectionRequest;
 use App\Http\Requests\Vendor\StoreMenuItemRequest;
 use App\Http\Resources\Customer\CustomerSectionItemResource;
+use App\Http\Resources\Vendor\VendorMenuCategoryResource;
 use App\Services\Vendor\VendorMenuService;
 use Illuminate\Http\Request;
 
@@ -86,6 +87,18 @@ class MenuController extends Controller
         $menu = $this->menuService->getFullMenu($restaurant_id);
         return $this->successResponse($menu);
     }
+
+    public function indexvendor(Request $request)
+    {
+        $restaurantId = $request->user()->managedRestaurant->id;
+
+        $menu = $this->menuService->getMenu($restaurantId);
+
+        return $this->successResponse(
+            VendorMenuCategoryResource::collection($menu)
+        );
+    }
+
 
     }
 

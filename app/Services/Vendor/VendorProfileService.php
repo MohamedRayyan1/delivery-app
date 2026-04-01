@@ -47,7 +47,7 @@ public function updateProfile($id, array $data)
         Cache::forget('home_active_restaurants');
         Cache::forget("restaurant_details_{$id}");
 
-        
+
         return $restaurant;
     });
 

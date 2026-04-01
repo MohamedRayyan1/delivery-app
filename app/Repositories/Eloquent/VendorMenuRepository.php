@@ -86,4 +86,20 @@ class VendorMenuRepository
             'subSections' => $subSections
         ];
     }
+
+
+public function getRestaurantMenu(int $restaurantId)
+    {
+        $restaurant = Restaurant::with(['sections' => function ($query) use ($restaurantId) {
+            $query->with(['subSections' => function ($subQuery) use ($restaurantId) {
+                $subQuery->where('restaurant_id', $restaurantId)
+                         ->with(['items' => function ($itemQuery) {
+                             $itemQuery->orderBy('id', 'desc');
+                         }]);
+            }]);
+        }])->findOrFail($restaurantId);
+
+        return $restaurant->sections;
+    }
+
 }
