@@ -6,20 +6,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class SubMenuSection extends Model
 {
-    protected $fillable = ['restaurant_id','name', 'image'];
+    protected $fillable = ['restaurant_id', 'menu_section_id', 'name', 'image'];
 
-    public function restaurant() {
+    public function restaurant()
+    {
         return $this->belongsTo(Restaurant::class, 'restaurant_id');
     }
-    
-    public function section() {
-        return $this->belongsTo(MenuSection::class, 'section_id');
+
+    public function section()
+    {
+        return $this->belongsTo(MenuSection::class, 'menu_section_id');
     }
 
-    public function items() {
-        // انتبه: الربط هنا صار مع sub_section_id حسب المخطط الجديد
+    public function items()
+    {
         return $this->hasMany(MenuItem::class, 'sub_section_id');
     }
-
-
 }

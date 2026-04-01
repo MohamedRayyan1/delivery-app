@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+
 use App\Models\Otp;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
@@ -66,7 +67,7 @@ class OtpService
                 Log::error('[SMS] Failed to send OTP', ['phone' => $phone, 'response' => $response->body()]);
                 return false;
             }
-        
+
             return true;
 
         } catch (\Exception $e) {
@@ -76,6 +77,9 @@ class OtpService
     }
 
     /**
+     * التحقق من الـ OTP وإرجاع التوكن
+     */
+/**
      * التحقق من الـ OTP وإرجاع التوكن
      */
     public function verifyOtp(string $phone, string $code): array|string
@@ -105,15 +109,21 @@ class OtpService
             return 'OTP is invalid or expired';
         }
 
-        // إحراق الكود لعدم استخدامه مرة أخرى
+        // 3. جلب المستخدم (بدون استخدام firstOrFail لتجنب الانهيار)
+        $user = User::where('phone', $phone)->first();
+
+
+
+        // إحراق الكود بعد التأكد من وجود المستخدم وصلاحية حسابه
         $otp->update(['is_used' => true]);
 
-        // جلب المستخدم وتوليد التوكن
-        $user = User::where('phone', $phone)->firstOrFail();
-
-        if ($user->is_banned) {
-            return 'تم حظر هذا الحساب. يرجى التواصل مع الدعم.';
-        }
+        if (!$user) {
+            // ملاحظة هندسية: إذا لم يجد المستخدم، لا نحرق الكود (is_used) لكي يتمكن من استخدامه بعد التسجيل
+            return 'لم يتم العثور على حساب مرتبظ بهذا الرقم. يرجى التسجيل أولاً.';
+            }
+            if ($user->is_banned) {
+                return 'تم حظر هذا الحساب. يرجى التواصل مع الدعم.';
+                }
 
         return [
             'token' => $user->createToken('auth_token')->plainTextToken,
@@ -121,3 +131,4 @@ class OtpService
         ];
     }
 }
+

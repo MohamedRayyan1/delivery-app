@@ -25,6 +25,7 @@ class CustomerOrderListResource extends JsonResource
                     'lng' => (float)$this->address->lng,
                 ];
             }),
+            'items' => CustomerOrderItemResource::collection($this->whenLoaded('items')),
             'created_at' => $this->created_at->toDateTimeString(),
         ];
     }

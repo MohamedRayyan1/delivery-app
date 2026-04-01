@@ -7,6 +7,9 @@ use App\Models\MenuItem;
 
 class VendorExtraRepository
 {
+
+
+
     public function checkMenuItemOwnership(int $menuItemId, int $resId): bool
     {
         return MenuItem::where('id', $menuItemId)

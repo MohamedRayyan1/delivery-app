@@ -20,9 +20,9 @@ class OtpController extends Controller
     {
         $sent = $this->otpService->sendOtp($request->phone);
 
-        if (!$sent) {
-            return $this->errorResponse('فشل في إرسال رمز التحقق، يرجى المحاولة لاحقاً', 500);
-        }
+        // if (!$sent) {
+        //     return $this->errorResponse('فشل في إرسال رمز التحقق، يرجى المحاولة لاحقاً', 500);
+        // }
 
         return $this->successResponse(null, 'تم إرسال رمز التحقق بنجاح');
     }

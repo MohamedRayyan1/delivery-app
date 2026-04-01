@@ -50,7 +50,7 @@ class CustomerOrderRepository
 
     public function getUserOrders(int $userId, int $perPage = 15)
     {
-        return Order::with(['restaurant:id,name,logo', 'address'])
+        return Order::with(['restaurant:id,name,logo','items.Item:id,name,image', 'address'])
             ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->cursorPaginate($perPage);

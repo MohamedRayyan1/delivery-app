@@ -1,5 +1,5 @@
 <?php
-// database/seeders/RestaurantSeeder.php
+
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -9,11 +9,18 @@ class RestaurantSeeder extends Seeder
 {
     public function run(): void
     {
-        // 20 مطعم - مرتبط مع users (restaurant_manager)
-        $managerIds = DB::table('users')->where('role', 'restaurant_manager')->pluck('id');
+        // 1. جلب معرفات المديرين و "خلطهم" عشوائياً
+        $managerIds = DB::table('users')
+            ->where('role', 'restaurant_manager')
+            ->pluck('id')
+            ->shuffle(); // خلط الترتيب لضمان العشوائية
 
-        for ($i = 1; $i <= 20; $i++) {
-            $managerId = $managerIds->random();
+        // 2. التأكد من أن عدد المديرين يكفي لعدد المطاعم (اختياري لكنه أضمن)
+        $count = min(20, $managerIds->count());
+
+        for ($i = 1; $i <= $count; $i++) {
+            // 3. سحب أول ID من المصفوفة وحذفه منها لضمان عدم التكرار
+            $managerId = $managerIds->shift();
 
             DB::table('restaurants')->insert([
                 'manager_user_id' => $managerId,
