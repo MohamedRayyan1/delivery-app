@@ -1,5 +1,5 @@
 <?php
-// database/seeders/UserSeeder.php
+
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -11,10 +11,8 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // 30 مستخدم مترابطين (20 عميل + 5 سائق + 3 مدير مطعم + 2 أدمن)
-        // كل البيانات مترابطة مع باقي الجداول (role, city, phone unique)
-
-        // 1. العملاء (20)
+        // 20 عميل + 10 سائق + 8 مدير مطعم + 2 أدمن = واقعي أكثر
+        // العملاء
         for ($i = 1; $i <= 20; $i++) {
             DB::table('users')->insert([
                 'name' => "عميل {$i}",
@@ -31,8 +29,8 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        // 2. السائقون (5)
-        for ($i = 1; $i <= 5; $i++) {
+        // السائقون
+        for ($i = 1; $i <= 10; $i++) {
             DB::table('users')->insert([
                 'name' => "سائق {$i}",
                 'phone' => "094" . str_pad($i, 7, '0', STR_PAD_LEFT),
@@ -48,8 +46,8 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        // 3. مديري المطاعم (3)
-        for ($i = 1; $i <= 3; $i++) {
+        // مديري المطاعم (8 مطاعم)
+        for ($i = 1; $i <= 8; $i++) {
             DB::table('users')->insert([
                 'name' => "مدير مطعم {$i}",
                 'phone' => "095" . str_pad($i, 7, '0', STR_PAD_LEFT),
@@ -65,7 +63,7 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        // 4. الأدمن (2)
+        // الأدمن
         for ($i = 1; $i <= 2; $i++) {
             DB::table('users')->insert([
                 'name' => "أدمن {$i}",

@@ -9,19 +9,14 @@ class RestaurantSeeder extends Seeder
 {
     public function run(): void
     {
-        // جلب جميع الـ IDs للمستخدمين الذين لديهم رتبة vendor
-        // ونقوم بعمل shuffle (ترتيب عشوائي) للمصفوفة لضمان توزيع مختلف في كل مرة
         $managerIds = DB::table('users')
             ->where('role', 'vendor')
             ->pluck('id')
             ->shuffle();
 
-        // التأكد من أننا لن ننشئ مطاعم أكثر من عدد المديرين المتاحين
-        // لتجنب خطأ الـ Unique Constraint
-        $count = min(20, $managerIds->count());
+        $count = $managerIds->count();
 
         for ($i = 0; $i < $count; $i++) {
-            // نأخذ المعرف بالترتيب من المصفوفة المشوشة (ضمان عدم التكرار)
             $managerId = $managerIds[$i];
 
             DB::table('restaurants')->insert([
@@ -30,8 +25,9 @@ class RestaurantSeeder extends Seeder
                 'governorate' => 'دمشق',
                 'city' => 'دمشق',
                 'status' => 'active',
-                'logo' => null,
-                'cover_image' => null,
+                // صور مطاعم عربية أنيقة وواقعية
+                'logo' => "https://picsum.photos/id/" . (240 + $i) . "/400/400",   // شعارات مطاعم
+                'cover_image' => "https://picsum.photos/id/" . (280 + $i) . "/1200/600", // صور خارجية/داخلية لمطعم
                 'description' => 'أشهى الأكلات السورية التقليدية مع خدمة توصيل سريعة',
                 'rating' => rand(38, 49) / 10,
                 'delivery_cost' => rand(800, 2500),

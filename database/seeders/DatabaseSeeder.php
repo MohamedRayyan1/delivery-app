@@ -1,22 +1,18 @@
 <?php
-// database/seeders/DatabaseSeeder.php
+
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // الاستدعاء من مكان واحد + الترتيب الصحيح للعلاقات (الجداول الأساسية أولاً)
         $this->call([
             UserSeeder::class,
             GovernorateSeeder::class,
             CustomerProfileSeeder::class,
-            DriverSeeder::class,           // ← أولاً
+            DriverSeeder::class,
             DriverDocumentSeeder::class,
             UserAddressSeeder::class,
             RestaurantSeeder::class,
@@ -34,6 +30,7 @@ class DatabaseSeeder extends Seeder
             FavoriteSeeder::class,
             OrderSeeder::class,
             OrderItemSeeder::class,
+            OrderItemExtraSeeder::class,   // ← الجديد
             DeliveryRequestSeeder::class,
             WalletTransactionSeeder::class,
             ReviewSeeder::class,

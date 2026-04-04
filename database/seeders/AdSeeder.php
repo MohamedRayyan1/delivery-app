@@ -1,5 +1,4 @@
 <?php
-// database/seeders/AdSeeder.php
 
 namespace Database\Seeders;
 
@@ -10,18 +9,15 @@ class AdSeeder extends Seeder
 {
     public function run(): void
     {
-        // 20 إعلان - مرتبط مع restaurants
         $restaurantIds = DB::table('restaurants')->pluck('id');
 
         for ($i = 1; $i <= 20; $i++) {
             DB::table('ads')->insert([
                 'restaurant_id' => $restaurantIds->random(),
-
-                // ✅ الحل: صورة وهمية (غير null)
-                'image' => "ads/ad-{$i}.jpg",   // أو "https://placehold.co/600x400?text=Ad+{$i}"
-
+                // صور إعلانات طعام شهية وعربية
+                'image' => "https://picsum.photos/id/" . (400 + $i) . "/800/600",
                 'title' => "عرض خاص {$i} - رمضان 2026",
-                'content' => 'خصم 20% على كل الطلبات فوق 10,000 ليرة',
+                'content' => 'خصم 20% على كل الطلبات فوق 10,000 ليرة سورية',
                 'status' => 'active',
                 'cost' => rand(25000, 120000),
                 'start_date' => now()->subDays(rand(1, 15)),
