@@ -18,6 +18,7 @@ class UpdateDriverProfileRequest extends FormRequest
 
         return [
             'name' => 'sometimes|required|string|max:255',
+            'city' => 'sometimes|string|max:255',
             'email' => [
                 'sometimes',
                 'required',

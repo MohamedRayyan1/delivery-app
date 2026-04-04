@@ -30,4 +30,13 @@ class CustomerSearchController extends Controller
             'prev_cursor' => $results->previousCursor()?->encode(),
         ]);
     }
+
+    public function getGovernorates()
+    {
+        $governorates = \App\Models\Governorate::all();
+        return response()->json([
+            'status' => true,
+            'data' => $governorates
+        ]);
+    }
 }

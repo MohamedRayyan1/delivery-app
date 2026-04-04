@@ -36,9 +36,11 @@ class HomePageRepository
                 ->whereIn('status', ['accepted', 'picked_up'])
                 ->exists();
 
+
             if ($hasActiveOrder) {
                 return false;
             }
+
             $updated = DeliveryRequest::where('id', $requestId)
                 ->where('status', 'pending')
                 ->whereNull('driver_id')
@@ -46,10 +48,10 @@ class HomePageRepository
                     'driver_id' => $driverId,
                     'status'    => 'accepted'
                 ]);
-
             if ($updated === 0) {
                 return false;
             }
+
             $orderId = DeliveryRequest::where('id', $requestId)->value('order_id');
 
             Order::where('id', $orderId)->update([
@@ -63,12 +65,12 @@ class HomePageRepository
     public function getDeliveredOrderSummary(int $driverId, int $orderId)
     {
         return Order::with([
-                'restaurant:id,name',
-                'address',
-                'review' => function ($query) use ($driverId) {
-                    $query->where('driver_id', $driverId)->select('id', 'order_id', 'driver_rating');
-                }
-            ])
+            'restaurant:id,name',
+            'address',
+            'review' => function ($query) use ($driverId) {
+                $query->where('driver_id', $driverId)->select('id', 'order_id', 'driver_rating');
+            }
+        ])
             ->where('id', $orderId)
             ->where('driver_id', $driverId)
             ->firstOrFail();

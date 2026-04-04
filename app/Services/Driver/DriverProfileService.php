@@ -16,7 +16,9 @@ class DriverProfileService
 
     public function updateProfile(int $userId, array $data)
     {
+       
         return DB::transaction(function () use ($userId, $data) {
+
 
             $driver = $this->repository->getDriverByUserId($userId);
 
@@ -24,7 +26,7 @@ class DriverProfileService
             if (isset($data['name'])) $userData['name'] = $data['name'];
             if (isset($data['email'])) $userData['email'] = $data['email'];
             if (isset($data['phone'])) $userData['phone'] = $data['phone'];
-
+            if (isset($data['city'])) $userData['city'] = $data['city'];
             if (!empty($userData)) {
                 $this->repository->updateUser($userId, $userData);
             }

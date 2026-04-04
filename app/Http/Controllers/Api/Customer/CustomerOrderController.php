@@ -9,6 +9,7 @@ use App\Http\Resources\Customer\CustomerOrderListResource;
 use App\Http\Resources\Customer\CustomerOrderResource;
 use App\Http\Resources\Customer\OrderTrackingResource;
 use Illuminate\Http\Request;
+use SebastianBergmann\CodeCoverage\Test\TestStatus\Success;
 
 class CustomerOrderController extends Controller
 {
@@ -30,7 +31,7 @@ class CustomerOrderController extends Controller
         ]);
     }
 
-public function show(Request $request, int $id)
+    public function show(Request $request, int $id)
     {
         try {
             $order = $this->orderService->getOrderDetails($request->user()->id, $id);
@@ -62,15 +63,15 @@ public function show(Request $request, int $id)
     }
 
     public function trackOrder($id)
-{
-    $order = $this->orderService->getOrderStatusAndDriver($id);
+    {
+        $order = $this->orderService->getOrderStatusAndDriver($id);
 
-    if (!$order) {
-        return $this->errorResponse("الطلب غير موجود", 404);
+        if (!$order) {
+            return $this->errorResponse("الطلب غير موجود", 404);
+        }
+
+        return $this->successResponse(new OrderTrackingResource($order));
     }
-
-    return $this->successResponse(new OrderTrackingResource($order));
-}
 
     public function cancel(Request $request, int $id)
     {
@@ -81,6 +82,24 @@ public function show(Request $request, int $id)
                 new CustomerOrderResource($order),
                 'تم إلغاء الطلب بنجاح'
             );
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+
+
+    public function validateCoupon(Request $request)
+    {
+        $request->validate(['code' => 'required|string']);
+
+        try {
+            $couponData = $this->orderService->validateCouponLogic($request->code);
+
+            return $this->successResponse($couponData);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,

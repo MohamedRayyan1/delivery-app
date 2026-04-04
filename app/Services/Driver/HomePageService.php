@@ -77,6 +77,7 @@ class HomePageService
     public function acceptOrder(int $requestId, int $driverId): bool
     {
         $accepted = $this->repository->acceptDeliveryRequest($requestId, $driverId);
+       
 
         if (!$accepted) {
             return false;

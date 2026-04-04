@@ -50,7 +50,7 @@ class CustomerOrderRepository
 
     public function getUserOrders(int $userId, int $perPage = 15)
     {
-        return Order::with(['restaurant:id,name,logo','items.Item:id,name,image', 'address'])
+        return Order::with(['restaurant:id,name,logo', 'items.Item:id,name,image', 'address'])
             ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->cursorPaginate($perPage);
@@ -58,33 +58,33 @@ class CustomerOrderRepository
 
     public function getUserOrderById(int $userId, int $orderId)
     {
-        $Orders=Order::with(['restaurant:id,name,logo', 'items.Item:id,name,image', 'address'])
+        $Orders = Order::with(['restaurant:id,name,logo', 'items.Item:id,name,image', 'address'])
             ->where('user_id', $userId)
             ->where('id', $orderId)
             ->firstOrFail();
         return $Orders;
     }
 
-public function getOrderTracking(int $orderId)
-{
-    return Order::where('id', $orderId)
-        ->select([
-            'id',
-            'status',
-            'driver_id',
-            'user_id',
-            'restaurant_id', // ضروري لعمل العلاقة
-            'delivery_confirmation_code',
-            'grand_total',
-            'created_at'
-        ])
-        ->with([
-            'driver.user:id,name,phone',
-            'restaurant:id,name,logo', // جلب اللوجو كمان عشان الصورة اللي بالتصميم
-            'items.Item:id,name'   // جلب أسماء الوجبات اللي بالطلب
-        ])
-        ->first();
-}
+    public function getOrderTracking(int $orderId)
+    {
+        return Order::where('id', $orderId)
+            ->select([
+                'id',
+                'status',
+                'driver_id',
+                'user_id',
+                'restaurant_id', // ضروري لعمل العلاقة
+                'delivery_confirmation_code',
+                'grand_total',
+                'created_at'
+            ])
+            ->with([
+                'driver.user:id,name,phone',
+                'restaurant:id,name,logo', // جلب اللوجو كمان عشان الصورة اللي بالتصميم
+                'items.Item:id,name'   // جلب أسماء الوجبات اللي بالطلب
+            ])
+            ->first();
+    }
 
     public function incrementCouponUsage(int $couponId)
     {
@@ -99,4 +99,9 @@ public function getOrderTracking(int $orderId)
         return Order::where('id', $orderId)->update(['status' => $status]);
     }
 
+
+    public function findCouponByCode(string $code)
+    {
+        return Coupon::where('code', $code)->first();
+    }
 }

@@ -23,7 +23,6 @@ use App\Http\Controllers\Api\Customer\CustomerSectionController;
 use App\Http\Controllers\Api\Vendor\VendorExtraController;
 use App\Http\Controllers\Api\Driver\DriverAuthController;
 use App\Http\Controllers\Api\Driver\DriverEarningsController;
-use App\Http\Controllers\Api\Driver\DriverHomeController;
 use App\Http\Controllers\Api\Driver\DriverOrderHistoryController;
 use App\Http\Controllers\Api\Driver\DriverProfileController;
 use App\Http\Controllers\Api\Driver\DriverStatusController;
@@ -39,7 +38,7 @@ Route::post('/login', [AuthController::class, 'login']);
 // إرسال الـ OTP أصبح يتم بشكل داخلي ضمن مسارات التسجيل وتسجيل الدخول
 Route::post('/otp/verify', [OtpController::class, 'verify']);
 Route::post('/otp/send', [OtpController::class, 'send']);
-
+Route::get('gov',[CustomerSearchController::class,'getGovernorates']);
 // 2. راوتات محمية (Protected) - تحتاج توكن (المحظورون ممنوعون)
 Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
 
@@ -180,6 +179,8 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::put('/orders/{id}/cancel', [CustomerOrderController::class, 'cancel']);
         Route::get('/orders', [CustomerOrderController::class, 'index']);
         Route::get('/orders/{id}', [CustomerOrderController::class, 'show']);
+
+        Route::post('/coupons/validate', [CustomerOrderController::class, 'validateCoupon']);
 
         Route::get('/favorites', [CustomerFavoriteController::class, 'index']);
         Route::post('/favorites/restaurants/{id}', [CustomerFavoriteController::class, 'toggleRestaurant']);

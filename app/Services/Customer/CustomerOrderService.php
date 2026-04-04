@@ -80,7 +80,7 @@ class CustomerOrderService
                 'grand_total' => $grandTotal,
                 'applied_restaurant_commission' => 10.00,
                 'applied_driver_share' => 100.00,
-                'delivery_confirmation_code' => $confirmationCode, 
+                'delivery_confirmation_code' => $confirmationCode,
             ];
 
             $order = $this->repository->createOrder($orderData);
@@ -145,5 +145,28 @@ class CustomerOrderService
 
             return $this->repository->getUserOrderById($userId, $orderId);
         });
+    }
+
+
+
+    public function validateCouponLogic(string $code)
+    {
+        $coupon = $this->repository->findCouponByCode($code);
+
+        // 1. التحقق من الوجود والتاريخ
+        if (!$coupon || ($coupon->expiry_date && $coupon->expiry_date < now())) {
+            throw new \Exception('الكوبون منتهي الصلاحية أو غير موجود');
+        }
+
+        // 2. التحقق من عدد مرات الاستخدام
+        if ($coupon->usage_limit !== null && $coupon->usage_limit <= 0) {
+            throw new \Exception('تم استنفاد عدد مرات استخدام الكوبون');
+        }
+
+        // 3. تجهيز النتيجة (تنسيق القيمة كما طلبت)
+        return [
+            'discount_value' => $coupon->value,
+            'type' => $coupon->discount_type
+        ];
     }
 }
