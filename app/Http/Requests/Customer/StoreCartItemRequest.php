@@ -3,8 +3,6 @@
 namespace App\Http\Requests\Customer;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Contracts\Validation\Validator;
 
 class StoreCartItemRequest extends FormRequest
 {
@@ -20,8 +18,8 @@ class StoreCartItemRequest extends FormRequest
             'item_id'       => 'required|exists:menu_items,id',
             'quantity'      => 'required|integer|min:1',
             'notes'         => 'nullable|string|max:255',
+            'extras_ids'    => 'nullable|array',
+            'extras_ids.*'  => 'integer|exists:item_extras,id',
         ];
     }
-
-
 }

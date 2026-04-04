@@ -27,8 +27,14 @@ class CustomerOrderService
 
             $subtotal = 0;
             foreach ($cart->items as $cartItem) {
-                $price = $cartItem->Item->discount_price ?? $cartItem->Item->price;
-                $subtotal += ($price * $cartItem->quantity);
+                $basePrice = $cartItem->Item->discount_price ?? $cartItem->Item->price;
+                $extrasPrice = 0;
+
+                foreach ($cartItem->extras as $extra) {
+                    $extrasPrice += $extra->price;
+                }
+
+                $subtotal += (($basePrice + $extrasPrice) * $cartItem->quantity);
             }
 
             $deliveryFee = $cart->restaurant->delivery_cost ?? 0;
@@ -84,25 +90,45 @@ class CustomerOrderService
 
             $order = $this->repository->createOrder($orderData);
 
-            $orderItems = [];
             $now = now();
             foreach ($cart->items as $cartItem) {
-                $unitPrice = $cartItem->Item->discount_price ?? $cartItem->Item->price;
-                $orderItems[] = [
+                $basePrice = $cartItem->Item->discount_price ?? $cartItem->Item->price;
+                $extrasTotal = 0;
+
+                foreach ($cartItem->extras as $extra) {
+                    $extrasTotal += $extra->price;
+                }
+
+                $orderItem = $this->repository->createOrderItem([
                     'order_id' => $order->id,
                     'item_id' => $cartItem->item_id,
                     'quantity' => $cartItem->quantity,
-                    'unit_price' => $unitPrice,
-                    'total_price' => $unitPrice * $cartItem->quantity,
+                    'unit_price' => $basePrice,
+                    'total_price' => ($basePrice + $extrasTotal) * $cartItem->quantity,
                     'created_at' => $now,
                     'updated_at' => $now,
-                ];
+                ]);
+
+                $orderItemExtras = [];
+                foreach ($cartItem->extras as $extra) {
+                    $orderItemExtras[] = [
+                        'order_item_id' => $orderItem->id,
+                        'extra_id' => $extra->id,
+                        'extra_name' => $extra->name,
+                        'extra_price' => $extra->price,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ];
+                }
+
+                if (!empty($orderItemExtras)) {
+                    $this->repository->insertOrderItemExtras($orderItemExtras);
+                }
             }
 
-            $this->repository->insertOrderItems($orderItems);
             $this->repository->clearUserCart($userId);
 
-            return $order->load(['items.Item', 'restaurant']);
+            return $order->load(['items.Item', 'items.extras', 'restaurant']);
         });
     }
 
@@ -117,17 +143,17 @@ class CustomerOrderService
     }
 
     public function getOrderStatusAndDriver(int $orderId)
-{
-    $order = $this->repository->getOrderTracking($orderId);
+    {
+        $order = $this->repository->getOrderTracking($orderId);
 
-    if (!$order) {
-        return null;
+        if (!$order) {
+            return null;
+        }
+
+        return $order;
     }
 
-    return $order;
-}
-
-public function cancelOrder(int $userId, int $orderId)
+    public function cancelOrder(int $userId, int $orderId)
     {
         return DB::transaction(function () use ($userId, $orderId) {
             $order = $this->repository->getUserOrderById($userId, $orderId);
@@ -145,5 +171,4 @@ public function cancelOrder(int $userId, int $orderId)
             return $this->repository->getUserOrderById($userId, $orderId);
         });
     }
-
 }

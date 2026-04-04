@@ -26,7 +26,7 @@ class ProfileController extends Controller
     }
 
     public function update(UpdateProfileRequest $request)
-    {
+    {   
         $profile = $this->profileService->updateProfile($request->user()->id, $request->validated());
 
         return $this->successResponse(new ProfileResource($profile), 'تم تحديث البيانات بنجاح');

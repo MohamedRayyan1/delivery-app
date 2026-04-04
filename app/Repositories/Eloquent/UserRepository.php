@@ -15,7 +15,7 @@ class UserRepository implements UserRepositoryInterface
     public function updateProfile(int $userId, array $data)
     {
         $user = User::find($userId);
-
+    
         if ($user) {
             $user->update($data);
             return $user;

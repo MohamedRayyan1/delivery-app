@@ -2,16 +2,31 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class CartItem extends Model
 {
-    use HasFactory;
+    protected $guarded = [];
 
-    protected $fillable = ['cart_id', 'item_id', 'quantity', 'notes'];
+    public function cart()
+    {
+        return $this->belongsTo(Cart::class);
+    }
 
-    public function item() { // الوجبة
+    // علاقة الوجبة (انتبه لحالة الحرف لتتطابق مع استخدامك في الـ Service)
+    public function Item()
+    {
         return $this->belongsTo(MenuItem::class, 'item_id');
+    }
+
+    // العلاقة الجديدة: الإضافات المرتبطة بهذه الوجبة تحديداً في السلة
+    public function extras()
+    {
+        return $this->belongsToMany(
+            ItemExtra::class,
+            'cart_item_extras',
+            'cart_item_id',
+            'item_extra_id'
+        );
     }
 }

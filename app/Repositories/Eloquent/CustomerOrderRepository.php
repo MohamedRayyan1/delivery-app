@@ -7,12 +7,13 @@ use App\Models\OrderItem;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Coupon;
+use Illuminate\Support\Facades\DB;
 
 class CustomerOrderRepository
 {
     public function getUserCart(int $userId)
     {
-        return Cart::with(['items.Item', 'restaurant'])
+        return Cart::with(['items.Item', 'items.extras', 'restaurant'])
             ->where('user_id', $userId)
             ->first();
     }
@@ -27,9 +28,14 @@ class CustomerOrderRepository
         return Order::create($data);
     }
 
-    public function insertOrderItems(array $items)
+    public function createOrderItem(array $data)
     {
-        return OrderItem::insert($items);
+        return OrderItem::create($data);
+    }
+
+    public function insertOrderItemExtras(array $extras)
+    {
+        return DB::table('order_item_extras')->insert($extras);
     }
 
     public function decrementCouponUsage(Coupon $coupon)
@@ -50,7 +56,7 @@ class CustomerOrderRepository
 
     public function getUserOrders(int $userId, int $perPage = 15)
     {
-        return Order::with(['restaurant:id,name,logo','items.Item:id,name,image', 'address'])
+        return Order::with(['restaurant:id,name,logo', 'items.Item:id,name,image', 'items.extras', 'address'])
             ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->cursorPaginate($perPage);
@@ -58,33 +64,33 @@ class CustomerOrderRepository
 
     public function getUserOrderById(int $userId, int $orderId)
     {
-        $Orders=Order::with(['restaurant:id,name,logo', 'items.Item:id,name,image', 'address'])
+        $Orders = Order::with(['restaurant:id,name,logo', 'items.Item:id,name,image', 'items.extras', 'address'])
             ->where('user_id', $userId)
             ->where('id', $orderId)
             ->firstOrFail();
         return $Orders;
     }
 
-public function getOrderTracking(int $orderId)
-{
-    return Order::where('id', $orderId)
-        ->select([
-            'id',
-            'status',
-            'driver_id',
-            'user_id',
-            'restaurant_id', // ضروري لعمل العلاقة
-            'delivery_confirmation_code',
-            'grand_total',
-            'created_at'
-        ])
-        ->with([
-            'driver.user:id,name,phone',
-            'restaurant:id,name,logo', // جلب اللوجو كمان عشان الصورة اللي بالتصميم
-            'items.Item:id,name'   // جلب أسماء الوجبات اللي بالطلب
-        ])
-        ->first();
-}
+    public function getOrderTracking(int $orderId)
+    {
+        return Order::where('id', $orderId)
+            ->select([
+                'id',
+                'status',
+                'driver_id',
+                'user_id',
+                'restaurant_id',
+                'delivery_confirmation_code',
+                'grand_total',
+                'created_at'
+            ])
+            ->with([
+                'driver.user:id,name,phone',
+                'restaurant:id,name,logo',
+                'items.Item:id,name'
+            ])
+            ->first();
+    }
 
     public function incrementCouponUsage(int $couponId)
     {
@@ -98,5 +104,4 @@ public function getOrderTracking(int $orderId)
     {
         return Order::where('id', $orderId)->update(['status' => $status]);
     }
-
 }
