@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('restaurant_id')->constrained();
             $table->foreignId('driver_id')->nullable()->constrained();
             $table->foreignId('address_id')->constrained('user_addresses');
+            $table->foreignId('extra_id')->nullable()->constrained('item_extras')->nullOnDelete();
 
             $table->integer('coupon_id')->nullable(); // مؤقتاً
 

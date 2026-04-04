@@ -166,10 +166,11 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::get('/ads', [CustomerAdController::class, 'index']);
 
 
-        // راوتات السلة (Cart)
+// راوتات السلة (Cart)
         Route::prefix('cart')->group(function () {
             Route::get('/', [CustomerCartController::class, 'index']);
             Route::post('/items', [CustomerCartController::class, 'store']);
+            Route::put('/items/{id}/decrement', [CustomerCartController::class, 'decrement']);
             Route::delete('/items/{id}', [CustomerCartController::class, 'destroy']);
             Route::delete('/', [CustomerCartController::class, 'clear']);
         });

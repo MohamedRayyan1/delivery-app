@@ -9,7 +9,8 @@ class CustomerCartRepository
 {
     public function getCartWithDetails(int $userId)
     {
-        return Cart::with(['items.Item', 'restaurant'])
+        // Eager Loading جبار يجلب الوجبة والإضافات والمطعم بـ 3 استعلامات فقط
+        return Cart::with(['items.Item', 'items.extras', 'restaurant'])
             ->where('user_id', $userId)
             ->first();
     }
@@ -24,14 +25,38 @@ class CustomerCartRepository
         return Cart::where('id', $cartId)->update(['restaurant_id' => $restaurantId]);
     }
 
-    public function findItemInCart(int $cartId, int $itemId)
+    public function findIdenticalItemInCart(int $cartId, int $itemId, array $extrasIds = [])
     {
-        return CartItem::where('cart_id', $cartId)->where('item_id', $itemId)->first();
+        $items = CartItem::with('extras')
+            ->where('cart_id', $cartId)
+            ->where('item_id', $itemId)
+            ->get();
+
+        sort($extrasIds);
+
+        foreach ($items as $item) {
+            $itemExtras = $item->extras->pluck('id')->toArray();
+            sort($itemExtras);
+
+            if ($itemExtras === $extrasIds) {
+                return $item; // تطابق تام في الوجبة والإضافات
+            }
+        }
+
+        return null; // وجبة بتركيبة إضافات جديدة
     }
 
     public function addItemToCart(array $data)
     {
         return CartItem::create($data);
+    }
+
+    public function syncItemExtras(int $cartItemId, array $extrasIds)
+    {
+        $cartItem = CartItem::find($cartItemId);
+        if ($cartItem) {
+            $cartItem->extras()->sync($extrasIds);
+        }
     }
 
     public function updateItemQuantity(int $cartItemId, int $quantity, ?string $notes)
@@ -50,5 +75,10 @@ class CustomerCartRepository
     public function clearCart(int $cartId)
     {
         return CartItem::where('cart_id', $cartId)->delete();
+    }
+
+    public function getCartItemById(int $cartItemId)
+    {
+        return CartItem::find($cartItemId);
     }
 }

@@ -19,4 +19,10 @@ class OrderItem extends Model
     public function item() {
         return $this->belongsTo(MenuItem::class, 'item_id'); // لربطها بالوجبة الأصلية لمعرفة الاسم والصورة
     }
+
+    public function extras()
+    {
+        return $this->hasMany(OrderItemExtra::class, 'order_item_id');
+    }
+    
 }

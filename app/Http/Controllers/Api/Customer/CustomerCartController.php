@@ -38,6 +38,21 @@ class CustomerCartController extends Controller
         }
     }
 
+    public function decrement(Request $request, int $id)
+    {
+        try {
+            $cart = $this->cartService->decrementItemQuantity($request->user()->id, $id);
+
+            if (!$cart) {
+                return $this->successResponse(null, 'تم حذف الوجبة، السلة فارغة الآن');
+            }
+
+            return $this->successResponse(new CustomerCartResource($cart), 'تم إنقاص الكمية بنجاح');
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
     public function destroy(Request $request, int $id)
     {
         try {

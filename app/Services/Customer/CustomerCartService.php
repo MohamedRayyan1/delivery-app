@@ -4,6 +4,7 @@ namespace App\Services\Customer;
 
 use App\Repositories\Eloquent\CustomerCartRepository;
 use Illuminate\Support\Facades\DB;
+use Exception;
 
 class CustomerCartService
 {
@@ -24,8 +25,18 @@ class CustomerCartService
 
         $subtotal = 0;
         foreach ($cart->items as $cartItem) {
-            $price = $cartItem->Item->discount_price ?? $cartItem->Item->price;
-            $subtotal += ($price * $cartItem->quantity);
+            $basePrice = $cartItem->Item->discount_price ?? $cartItem->Item->price;
+
+            $extrasPrice = 0;
+            foreach ($cartItem->extras as $extra) {
+                $extrasPrice += $extra->price;
+            }
+
+            $itemTotal = ($basePrice + $extrasPrice) * $cartItem->quantity;
+            $subtotal += $itemTotal;
+
+            $cartItem->calculated_item_price = $basePrice + $extrasPrice;
+            $cartItem->calculated_total_price = $itemTotal;
         }
 
         $deliveryFee = $cart->restaurant->delivery_cost ?? 0;
@@ -43,21 +54,33 @@ class CustomerCartService
             $cart = $this->repository->firstOrCreateCart($userId);
 
             if ($cart->restaurant_id !== null && $cart->restaurant_id !== (int)$data['restaurant_id']) {
-                throw new \Exception('لا يمكن إضافة وجبات من مطعم مختلف. يرجى تفريغ السلة أولاً.');
+                throw new Exception('لا يمكن إضافة وجبات من مطعم مختلف. يرجى تفريغ السلة أولاً.');
             }
 
             if ($cart->restaurant_id === null) {
                 $this->repository->updateCartRestaurant($cart->id, $data['restaurant_id']);
             }
 
-            $existingItem = $this->repository->findItemInCart($cart->id, $data['item_id']);
+            $extrasIds = $data['extras_ids'] ?? [];
+
+            $existingItem = $this->repository->findIdenticalItemInCart($cart->id, $data['item_id'], $extrasIds);
+
             if ($existingItem) {
                 $newQuantity = $existingItem->quantity + $data['quantity'];
                 $notes = $data['notes'] ?? $existingItem->notes;
                 $this->repository->updateItemQuantity($existingItem->id, $newQuantity, $notes);
             } else {
-                $data['cart_id'] = $cart->id;
-                $this->repository->addItemToCart($data);
+                $cartItemData = [
+                    'cart_id' => $cart->id,
+                    'item_id' => $data['item_id'],
+                    'quantity' => $data['quantity'],
+                    'notes' => $data['notes'] ?? null,
+                ];
+                $newItem = $this->repository->addItemToCart($cartItemData);
+
+                if (!empty($extrasIds)) {
+                    $this->repository->syncItemExtras($newItem->id, $extrasIds);
+                }
             }
 
             return $this->getCart($userId);
@@ -87,6 +110,30 @@ class CustomerCartService
                 $this->repository->updateCartRestaurant($cart->id, null);
             }
             return null;
+        });
+    }
+
+    public function decrementItemQuantity(int $userId, int $cartItemId)
+    {
+        return DB::transaction(function () use ($userId, $cartItemId) {
+            $cartItem = $this->repository->getCartItemById($cartItemId);
+
+            if (!$cartItem) {
+                throw new Exception('الوجبة غير موجودة في السلة.');
+            }
+
+            $cart = $this->repository->firstOrCreateCart($userId);
+            if ($cartItem->cart_id !== $cart->id) {
+                throw new Exception('هذه الوجبة لا تنتمي لسلتك.');
+            }
+
+            if ($cartItem->quantity > 1) {
+                $newQuantity = $cartItem->quantity - 1;
+                $this->repository->updateItemQuantity($cartItem->id, $newQuantity, $cartItem->notes);
+                return $this->getCart($userId);
+            }
+
+            return $this->removeItem($userId, $cartItemId);
         });
     }
 }

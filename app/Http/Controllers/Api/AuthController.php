@@ -45,9 +45,10 @@ class AuthController extends Controller
         // if (! $sent) {
         //     return $this->errorResponse('فشل في إرسال رمز التحقق، يرجى المحاولة لاحقاً', 500);
         // }
+          $token = $user->createToken('auth_token')->plainTextToken;
 
         // لا ننشئ توكن هنا، التوكن يُنشأ بعد التحقق من الـ OTP في /otp/verify
-        return $this->successResponse(null, 'تم إنشاء الحساب وإرسال رمز التحقق بنجاح', 201);
+        return $this->successResponse(['token' => $token], 'تم إنشاء الحساب وإرسال رمز التحقق بنجاح', 201);
     }
 
     // 2. تسجيل الدخول
