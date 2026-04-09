@@ -177,7 +177,7 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
 
         // راوت إنشاء الطلب
         Route::post('/checkout', [CustomerOrderController::class, 'checkout']);
-        Route::put('/orders/{id}/cancel', [CustomerOrderController::class, 'cancel']);
+        Route::delete('/orders/{id}/cancel', [CustomerOrderController::class, 'cancel']);
         Route::get('/orders', [CustomerOrderController::class, 'index']);
         Route::get('/orders/{id}', [CustomerOrderController::class, 'show']);
 

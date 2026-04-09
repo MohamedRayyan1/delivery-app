@@ -27,7 +27,6 @@ class UpdateDriverProfileRequest extends FormRequest
             ],
             'phone' => [
                 'sometimes',
-                'required',
                 'string',
                 Rule::unique('users', 'phone')->ignore($userId),
             ],
