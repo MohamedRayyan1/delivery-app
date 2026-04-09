@@ -8,6 +8,24 @@ Route::get('/', function () {
 });
 
 
+Route::get('/run-queue', function () {
+    try {
+        // تشغيل الكييو لمعالجة العمليات لمرة واحدة أو لفترة قصيرة
+        // --stop-when-empty يجعله يتوقف بمجرد انتهاء المهام لكي لا يستهلك موارد السيرفر
+        Artisan::call('queue:work', [
+            '--stop-when-empty' => true,
+            '--force' => true
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'تم تشغيل معالج المهام بنجاح.',
+            'log' => Artisan::output()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
 
 Route::get('/reset-and-seed-database', function () {
     try {
