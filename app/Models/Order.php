@@ -11,12 +11,25 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'restaurant_id', 'driver_id', 'address_id', 'coupon_id',
-        'delivery_confirmation_code', 'status',
-        'payment_method', 'payment_status', 'transaction_ref',
-        'subtotal', 'delivery_fee', 'discount_amount', 'grand_total',
-        'applied_restaurant_commission', 'applied_driver_share',
-        'picked_up_at', 'delivered_at', 'paid_at'
+        'user_id',
+        'restaurant_id',
+        'driver_id',
+        'address_id',
+        'coupon_id',
+        'delivery_confirmation_code',
+        'status',
+        'payment_method',
+        'payment_status',
+        'transaction_ref',
+        'subtotal',
+        'delivery_fee',
+        'discount_amount',
+        'grand_total',
+        'applied_restaurant_commission',
+        'applied_driver_share',
+        'picked_up_at',
+        'delivered_at',
+        'paid_at'
     ];
 
     protected $casts = [
@@ -31,29 +44,40 @@ class Order extends Model
     ];
 
     // --- العلاقات ---
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function restaurant() {
+    public function restaurant()
+    {
         return $this->belongsTo(Restaurant::class);
     }
 
-    public function address() {
+    public function address()
+    {
         return $this->belongsTo(UserAddress::class, 'address_id');
     }
 
-    public function driver() {
+    public function driver()
+    {
         return $this->belongsTo(Driver::class);
     }
 
-    public function items() {
+    public function items()
+    {
         return $this->hasMany(OrderItem::class);
     }
 
     public function review()
     {
         return $this->hasOne(Review::class);
+    }
+
+    public function deliveryRequest()
+    {
+        // تفترض هذه العلاقة أن جدول delivery_requests يحتوي على order_id
+        return $this->hasOne(DeliveryRequest::class);
     }
 
     // --- الحسابات الديناميكية (Accessors) ---

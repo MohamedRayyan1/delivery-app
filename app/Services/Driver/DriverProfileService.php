@@ -16,7 +16,7 @@ class DriverProfileService
 
     public function updateProfile(int $userId, array $data)
     {
-       
+
         return DB::transaction(function () use ($userId, $data) {
 
 
@@ -53,7 +53,39 @@ class DriverProfileService
             if (!empty($driverData)) {
                 $this->repository->updateDriver($driver->id, $driverData);
             }
+            
+            $documentTypes = [
+                'personal_photo',
+                'id_card_front',
+                'id_card_back',
+                'driver_license',
+                'vehicle_mechanic'
+            ];
 
+            foreach ($documentTypes as $type) {
+                if (request()->hasFile($type)) {
+                    // تخزين الملف بشكل فيزيائي سريع
+                    $path = request()->file($type)->store("drivers/{$driver->id}/documents", 'public');
+
+                    // إرسال مهمة للـ Queue لمعالجة السجل في قاعدة البيانات
+                    // ملاحظة: تأكد من أن Job (ProcessDriverDocument) يقوم بـ updateOrCreate للسجل
+                    \App\Jobs\ProcessDriverDocument::dispatch($driver->id, $type, $path);
+
+                    $needsRevalidation = true; // أي تغيير في الوثائق يتطلب مراجعة الإدارة
+                }
+            }
+
+            // 4. إذا تغيرت المركبة أو الوثائق، نحول الحساب لـ pending
+            if ($needsRevalidation) {
+                $driverData['account_status'] = 'pending';
+                $driverData['is_online'] = false;
+            }
+
+            if (!empty($driverData)) {
+                $this->repository->updateDriver($driver->id, $driverData);
+            }
+
+            // إعادة جلب السائق مع كافة البيانات والوثائق المحدثة
             return $this->repository->getDriverByUserId($userId)->load(['user', 'documents']);
         });
     }

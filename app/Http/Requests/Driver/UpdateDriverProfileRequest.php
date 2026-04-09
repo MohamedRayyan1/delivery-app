@@ -32,6 +32,12 @@ class UpdateDriverProfileRequest extends FormRequest
             ],
             'vehicle_type' => 'sometimes|required|string|in:motorcycle,car',
             'vehicle_plate_number' => 'nullable|string|max:50',
+
+            'personal_photo' => 'sometimes|image|max:4096',
+            'id_card_front'  => 'sometimes|image|max:4096',
+            'id_card_back'   => 'sometimes|image|max:4096',
+            'driver_license' => 'sometimes|image|max:4096',
+            'vehicle_mechanic' => 'sometimes|image|max:4096',
         ];
     }
 }

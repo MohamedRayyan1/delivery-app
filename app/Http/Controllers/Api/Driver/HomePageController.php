@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Api\Driver;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Driver\AcceptedOrderResource;
 use App\Http\Resources\Driver\AvailableOrderResource;
+use App\Http\Resources\Driver\CanceledOrderSummaryResource;
 use App\Http\Resources\Driver\DriverDeliverySummaryResource;
+use App\Http\Resources\Driver\OrderDeliveryResultResource;
+use App\Http\Resources\Driver\PendingOrderSummaryResource;
 use App\Services\Driver\HomePageService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
@@ -36,10 +40,15 @@ class HomePageController extends Controller
     {
         $driverId = Auth::user()->driver->id;
 
-        $accepted = $this->service->acceptOrder($requestId, $driverId);
+        // استدعاء الخدمة (التي تعيد الآن كائن أو false)
+        $result = $this->service->acceptOrder($requestId, $driverId);
 
-        if ($accepted) {
-            return $this->successResponse(null, 'تم قبول الطلب بنجاح!');
+        if ($result) {
+            // تمرير الكائن للـ Resource المستقل
+            return $this->successResponse(
+                new AcceptedOrderResource($result),
+                'تم قبول الطلب بنجاح!'
+            );
         }
 
         return $this->errorResponse(
@@ -61,7 +70,6 @@ class HomePageController extends Controller
             $order = $this->service->getDeliverySummary(Auth::user()->driver->id, $id);
 
             return $this->successResponse(new DriverDeliverySummaryResource($order));
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
@@ -99,29 +107,54 @@ class HomePageController extends Controller
 
 
 
-    public function deliverOrder(Request $request, $id)
+  public function deliverOrder(Request $request, $id)
+{
+    // التأكد من إرسال كود التحقق
+    $request->validate([
+        'confirmation_code' => 'required|string|min:4',
+    ]);
+
+    $driverId = Auth::user()->driver->id;
+
+    try {
+        // تنفيذ عملية التوصيل عبر السيرفس
+        $deliveryRequest = $this->service->deliverOrder(
+            $id,
+            $driverId,
+            $request->confirmation_code
+        );
+
+        // تحميل علاقة الأوردر لضمان وصول البيانات المالية للـ Resource
+        $deliveryRequest->load('order');
+
+        return $this->successResponse(
+            new OrderDeliveryResultResource($deliveryRequest),
+            'تم توصيل الطلب بنجاح! شكراً لجهودك.'
+        );
+
+    } catch (\Exception $e) {
+        return $this->errorResponse($e->getMessage(), 400);
+    }
+}
+
+
+    public function pendingOrderSummary(int $id)
     {
-        // التأكد من إرسال كود التحقق
-        $request->validate([
-            'confirmation_code' => 'required|string|min:4',
-        ]);
-
-        $driverId = Auth::user()->driver->id;
-
         try {
-            $deliveryRequest = $this->service->deliverOrder(
-                $id,
-                $driverId,
-                $request->confirmation_code
-            );
-
-            return $this->successResponse([
-                'id' => $deliveryRequest->id,
-                'status' => $deliveryRequest->status, // Delivered
-                'delivered_at' => now()->toDateTimeString()
-            ], 'تم توصيل الطلب بنجاح! شكراً لجهودك.');
+            $order = $this->service->getPendingOrderSummary($id);
+            return $this->successResponse(new PendingOrderSummaryResource($order));
         } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), 400);
+            return $this->errorResponse($e->getMessage(), 404);
+        }
+    }
+
+    public function canceledOrderSummary(int $id)
+    {
+        try {
+            $order = $this->service->getCanceledOrderSummary(Auth::user()->driver->id, $id);
+            return $this->successResponse(new CanceledOrderSummaryResource($order));
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 404);
         }
     }
 }

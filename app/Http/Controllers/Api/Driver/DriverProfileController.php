@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Driver;
 use App\Http\Controllers\Controller;
 use App\Services\Driver\DriverProfileService;
 use App\Http\Requests\Driver\UpdateDriverProfileRequest;
+use App\Http\Resources\Driver\DriverFullProfileResource;
 use App\Http\Resources\Driver\DriverResource;
 use App\Http\Resources\Driver\DriverStatsProfileResource;
 use Auth;
@@ -33,7 +34,6 @@ class DriverProfileController extends Controller
             }
 
             return $this->successResponse(new DriverResource($updatedDriver), $message);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
@@ -51,7 +51,6 @@ class DriverProfileController extends Controller
             $profile = $this->profileService->getProfile($driverId);
 
             return $this->successResponse(new DriverStatsProfileResource($profile));
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
@@ -60,4 +59,18 @@ class DriverProfileController extends Controller
         }
     }
 
+    public function getProfileDetails()
+    {
+        try {
+            // جلب السائق المرتبط بالمستخدم الحالي مع كافة علاقاته
+            $driver = Auth::user()->driver->load(['user', 'documents']);
+
+            return $this->successResponse(
+                new DriverFullProfileResource($driver),
+                'تم جلب بيانات الملف الشخصي بنجاح'
+            );
+        } catch (\Exception $e) {
+            return $this->errorResponse('حدث خطأ أثناء جلب البيانات', 500);
+        }
+    }
 }

@@ -74,23 +74,24 @@ class HomePageService
         })->values(); // إعادة ترتيب مفاتيح المصفوفة بعد الحذف (Filter)
     }
 
-    public function acceptOrder(int $requestId, int $driverId): bool
+    public function acceptOrder(int $requestId, int $driverId)
     {
-        $accepted = $this->repository->acceptDeliveryRequest($requestId, $driverId);
-       
+        // 1. تنفيذ العملية في المستودع واستلام الكائن
+        $deliveryRequest = $this->repository->acceptDeliveryRequest($requestId, $driverId);
 
-        if (!$accepted) {
+        if (!$deliveryRequest) {
             return false;
         }
-        $deliveryRequest = DeliveryRequest::find($requestId);
 
+        // 2. إطلاق الأحداث (Events)
         $city = Auth::user()->city;
         event(new OrderAccepted($deliveryRequest->order_id, $city));
 
-        // تنظيف الكاش
+        // 3. تنظيف الكاش
         \Cache::forget("driver_orders_{$city}_*");
 
-        return true;
+        // 4. إرجاع الكائن ليستخدمه المتحكم
+        return $deliveryRequest;
     }
 
     public function getDeliverySummary(int $driverId, int $orderId)
@@ -174,5 +175,26 @@ class HomePageService
         }
 
         return $updatedRequest;
+    }
+
+
+
+    public function getPendingOrderSummary(int $orderId)
+    {
+        $order = $this->repository->getOrderDetailsForSummary($orderId);
+        if ($order->status !== 'pending') {
+            throw new Exception('هذا الطلب ليس في الحالة المنتظرة.');
+        }
+        return $order;
+    }
+
+    public function getCanceledOrderSummary(int $driverId, int $orderId)
+    {
+        $order = $this->repository->getOrderDetailsForSummary($orderId);
+        // التأكد أن الطلب ملغى ويخص السائق
+        if ($order->status !== 'cancelled' || $order->driver_id !== $driverId) {
+            throw new Exception('لا يمكن عرض تفاصيل هذا الطلب الملغى.');
+        }
+        return $order;
     }
 }

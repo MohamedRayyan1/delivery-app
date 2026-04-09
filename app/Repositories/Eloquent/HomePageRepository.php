@@ -28,37 +28,39 @@ class HomePageRepository
     /**
      * قبول طلب التوصيل وتحديث جدول الطلبات الأساسي
      */
-    public function acceptDeliveryRequest(int $requestId, int $driverId): bool
+    public function acceptDeliveryRequest(int $requestId, int $driverId)
     {
         return DB::transaction(function () use ($requestId, $driverId) {
-
             $hasActiveOrder = DeliveryRequest::where('driver_id', $driverId)
                 ->whereIn('status', ['accepted', 'picked_up'])
                 ->exists();
-
 
             if ($hasActiveOrder) {
                 return false;
             }
 
-            $updated = DeliveryRequest::where('id', $requestId)
+            // جلب الطلب والتأكد من حالته
+            $deliveryRequest = DeliveryRequest::where('id', $requestId)
                 ->where('status', 'pending')
                 ->whereNull('driver_id')
-                ->update([
-                    'driver_id' => $driverId,
-                    'status'    => 'accepted'
-                ]);
-            if ($updated === 0) {
+                ->first();
+
+            if (!$deliveryRequest) {
                 return false;
             }
 
-            $orderId = DeliveryRequest::where('id', $requestId)->value('order_id');
+            // التحديث
+            $deliveryRequest->update([
+                'driver_id' => $driverId,
+                'status'    => 'accepted'
+            ]);
 
-            Order::where('id', $orderId)->update([
+            Order::where('id', $deliveryRequest->order_id)->update([
                 'driver_id' => $driverId,
             ]);
 
-            return true;
+            // جلب العلاقات اللازمة للـ Resource وإرجاع الكائن
+            return $deliveryRequest->load(['order.restaurant', 'order.address']);
         });
     }
 
@@ -136,5 +138,17 @@ class HomePageRepository
 
             return $deliveryRequest;
         });
+    }
+
+
+    public function getOrderDetailsForSummary(int $orderId)
+    {
+        return Order::with([
+            'restaurant:id,name,lat,lng,city',
+            'address',
+            'items.item:id,name', // جلب أسماء العناصر في الفاتورة
+            'review',
+            'deliveryRequest' // لجلب الربح المعروض للسائق
+        ])->findOrFail($orderId);
     }
 }
