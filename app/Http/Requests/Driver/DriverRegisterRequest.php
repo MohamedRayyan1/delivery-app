@@ -21,10 +21,13 @@ class DriverRegisterRequest extends FormRequest
 
             'email' => 'required|email|unique:users,email',
             'password' => 'nullable|string|min:8',
+
             'vehicle_type' => 'required|string|in:motorcycle,car',
             'vehicle_plate_number' => 'nullable|string|max:50',
+            
             'personal_photo' => 'required|image|max:4096',
-            'id_card' => 'required|image|max:4096',
+            'id_card_back' => 'required|image|max:4096',
+            'id_card_front' => 'required|image|max:4096',
             'driver_license' => 'required|image|max:4096',
         ];
     }

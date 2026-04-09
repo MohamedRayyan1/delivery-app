@@ -38,7 +38,7 @@ Route::post('/login', [AuthController::class, 'login']);
 // إرسال الـ OTP أصبح يتم بشكل داخلي ضمن مسارات التسجيل وتسجيل الدخول
 Route::post('/otp/verify', [OtpController::class, 'verify']);
 Route::post('/otp/send', [OtpController::class, 'send']);
-Route::get('gov',[CustomerSearchController::class,'getGovernorates']);
+Route::get('gov', [CustomerSearchController::class, 'getGovernorates']);
 // 2. راوتات محمية (Protected) - تحتاج توكن (المحظورون ممنوعون)
 Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
 
@@ -151,7 +151,6 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::get('/orders', [VendorOrderController::class, 'index']);
 
         Route::get('/v-menu', [MenuController::class, 'indexvendor']);
-
     }); // Closed the vendor middleware group
 
     // customer
@@ -166,7 +165,7 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::get('/ads', [CustomerAdController::class, 'index']);
 
 
-// راوتات السلة (Cart)
+        // راوتات السلة (Cart)
         Route::prefix('cart')->group(function () {
             Route::get('/', [CustomerCartController::class, 'index']);
             Route::post('/items', [CustomerCartController::class, 'store']);
@@ -232,6 +231,7 @@ Route::prefix('driver')->group(function () {
 
         Route::put('/profile', [DriverProfileController::class, 'update']);
         Route::get('/profile', [DriverProfileController::class, 'showProfile']);
+        Route::get('/profileDetails', [DriverProfileController::class, 'getProfileDetails']);
         Route::put('/status/online', [DriverStatusController::class, 'toggleOnline']);
         Route::put('/earnings', [DriverEarningsController::class, 'index']);
 
@@ -245,6 +245,8 @@ Route::prefix('driver')->group(function () {
         Route::post('orders/{id}/reject', [HomePageController::class, 'rejectOrder']);
 
         Route::get('/orders/{id}/delivery-summary', [HomePageController::class, 'deliverySummary']);
+        Route::get('/orders/{id}/new-summary', [HomePageController::class, 'pendingOrderSummary']);
+        Route::get('/orders/{id}/cancel-summary', [HomePageController::class, 'canceledOrderSummary']);
 
         Route::get('/orders-history', [DriverOrderHistoryController::class, 'index']);
         // استلام الطلب من المطعم (يتطلب رفع صورة الفاتورة)

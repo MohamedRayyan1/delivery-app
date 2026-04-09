@@ -76,7 +76,10 @@ namespace App\Models{
  * @property string|null $notes
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\MenuItem $item
+ * @property-read \App\Models\MenuItem $Item
+ * @property-read \App\Models\Cart $cart
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ItemExtra> $extras
+ * @property-read int|null $extras_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem query()
@@ -372,6 +375,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\UserAddress $address
  * @property-read mixed $app_earnings
+ * @property-read \App\Models\DeliveryRequest|null $deliveryRequest
  * @property-read \App\Models\Driver|null $driver
  * @property-read mixed $driver_earnings
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\OrderItem> $items
@@ -419,6 +423,8 @@ namespace App\Models{
  * @property numeric $total_price
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\OrderItemExtra> $extras
+ * @property-read int|null $extras_count
  * @property-read \App\Models\MenuItem $item
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem newQuery()
@@ -433,6 +439,15 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereUpdatedAt($value)
  */
 	class OrderItem extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItemExtra newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItemExtra newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItemExtra query()
+ */
+	class OrderItemExtra extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -549,6 +564,7 @@ namespace App\Models{
 /**
  * @property int $id
  * @property int $restaurant_id
+ * @property int|null $menu_section_id
  * @property string $name
  * @property string|null $image
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -563,6 +579,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SubMenuSection whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SubMenuSection whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SubMenuSection whereImage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubMenuSection whereMenuSectionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SubMenuSection whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SubMenuSection whereRestaurantId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SubMenuSection whereUpdatedAt($value)
@@ -671,13 +688,16 @@ namespace App\Models{
  * @property numeric $lat
  * @property numeric $lng
  * @property bool $is_default
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserAddress newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserAddress newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserAddress onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserAddress query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserAddress whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserAddress whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserAddress whereDetails($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserAddress whereFloor($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserAddress whereId($value)
@@ -689,6 +709,8 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserAddress whereStreet($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserAddress whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserAddress whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserAddress withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserAddress withoutTrashed()
  */
 	class UserAddress extends \Eloquent {}
 }

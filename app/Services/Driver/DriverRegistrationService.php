@@ -2,6 +2,7 @@
 
 namespace App\Services\Driver;
 
+use App\Jobs\ProcessDriverDocument;
 use App\Repositories\Eloquent\DriverRegistrationRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -17,7 +18,7 @@ class DriverRegistrationService
 
     public function registerDriver(array $data)
     {
-       
+
         return DB::transaction(function () use ($data) {
 
             $userData = [
@@ -41,22 +42,25 @@ class DriverRegistrationService
 
             $driver = $this->repository->createDriver($driverData);
 
-            $documentTypes = ['personal_photo', 'id_card', 'driver_license'];
+            $documentTypes = [
+                'personal_photo',
+                'id_card_front',
+                'id_card_back',
+                'driver_license',
+                // 'vehicle_mechanic'
+            ];
 
             foreach ($documentTypes as $type) {
                 if (request()->hasFile($type)) {
+                    // 1. تخزين الملف أولاً بشكل سريع
                     $path = request()->file($type)->store("drivers/{$driver->id}/documents", 'public');
 
-                    $this->repository->createDocument([
-                        'driver_id' => $driver->id,
-                        'document_type' => $type,
-                        'file_path' => $path,
-                        'status' => 'pending',
-                    ]);
+                    // 2. إرسال العملية للـ Queue لمعالجتها لاحقاً
+                    ProcessDriverDocument::dispatch($driver->id, $type, $path);
                 }
             }
 
-            return $driver->load(['user', 'documents']);
+            return $driver->load(['user']); // لا نحمل documents هنا لأنها تعالج في الخلفية
         });
     }
 }
