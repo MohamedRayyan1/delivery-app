@@ -30,7 +30,7 @@ Route::get('/run-queue', function () {
 Route::get('/reset-and-seed-database', function () {
     try {
         // 1. مسح الجداول القديمة وإعادة بنائها من الصفر
-        Artisan::call('migrate:refresh', [
+        Artisan::call('migrate:reset', [
             '--force' => true
         ]);
 

@@ -13,29 +13,45 @@ class VendorAdResource extends JsonResource
         $startDate = Carbon::parse($this->start_date);
         $endDate = Carbon::parse($this->end_date);
 
-        // 1. حساب حالة البادج (Badge) وزر التفعيل (Toggle)
-        $statusBadge = 'منتهي';
+        $statusBadge = '';
         $isActiveToggle = false;
 
-        // بافتراض أن حقل status في الداتا بيس يخزن (active/inactive) أو (1/0)
-        if ($this->status === 'active' || $this->status == 1) {
-            if ($now->between($startDate, $endDate)) {
-                $statusBadge = 'نشط الآن';
-                $isActiveToggle = true;
-            } elseif ($now->lt($startDate)) {
-                $statusBadge = 'مجدول';
-                $isActiveToggle = true;
-            } else {
+        switch ($this->status) {
+            case 'pending':
+                $statusBadge = 'قيد المراجعة';
+                $isActiveToggle = false;
+                break;
+
+            case 'waiting_payment':
+                $statusBadge = 'بانتظار الدفع';
+                $isActiveToggle = false;
+                break;
+
+            case 'approved':
+                if ($now->between($startDate, $endDate)) {
+                    if ($this->is_active) {
+                        $statusBadge = 'نشط الآن';
+                        $isActiveToggle = true;
+                    } else {
+                        $statusBadge = 'متوقف مؤقتاً';
+                        $isActiveToggle = false;
+                    }
+                } elseif ($now->lt($startDate)) {
+                    $statusBadge = 'مجدول';
+                    $isActiveToggle = true;
+                } else {
+                        $statusBadge = 'منتهي';
+                    $isActiveToggle = false;
+                }
+                break;
+
+            case 'expired':
+            default:
                 $statusBadge = 'منتهي';
                 $isActiveToggle = false;
-            }
-        } else {
-            $statusBadge = 'منتهي'; // إذا قام صاحب المطعم بإيقافه يدوياً
-            $isActiveToggle = false;
+                break;
         }
 
-        // 2. تنسيق التاريخ باللغة العربية
-        // ملاحظة: تأكد من أن 'locale' => 'ar' في ملف config/app.php
         $formattedStartDate = $startDate->translatedFormat('d F Y');
         $formattedEndDate = $endDate->translatedFormat('d F Y');
 
@@ -44,16 +60,11 @@ class VendorAdResource extends JsonResource
             'title' => $this->title,
             'content' => $this->content,
             'image' => $this->image ? asset('storage/' . $this->image) : null,
-
-            // الحقول المهيأة خصيصاً للواجهة المرفقة
             'date_range' => "{$formattedStartDate} - {$formattedEndDate}",
             'status_badge' => $statusBadge,
             'is_active' => $isActiveToggle,
-
-            // نحتفظ بالتواريخ الأصلية لاحتمالية استخدامها في شاشة "تعديل الإعلان"
             'start_date' => $startDate->toDateString(),
             'end_date' => $endDate->toDateString(),
-            // 'cost' => (float) $this->cost,
         ];
     }
 }
