@@ -140,7 +140,7 @@ class HomePageService
             }
 
             // 3. إرسال المهمة للـ Queue لمعالجة الصورة
-            dispatch(new \App\Jobs\ProcessImageJob($deliveryRequest, 'invoice_image', $path));
+            dispatch(new \App\Jobs\ProcessImageJob( $path))->afterCommit();
 
             return $deliveryRequest;
         });

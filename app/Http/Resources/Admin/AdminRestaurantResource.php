@@ -22,6 +22,8 @@ class AdminRestaurantResource extends JsonResource
             'cover_image' => $this->cover_image ? asset('storage/' . $this->cover_image) : null,
             'description' => $this->description,
             'rating' => $this->rating,
+            'lat' => $this->lat,
+            'lng' => $this->lng,
             'delivery_cost' => $this->delivery_cost,
             'min_order_price' => $this->min_order_price,
             'delivery_time' => $this->delivery_time,

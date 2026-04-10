@@ -27,6 +27,8 @@ class StoreRestaurantRequest extends FormRequest
             'status' => 'required|string|max:255',
             'logo' => 'nullable|string',
             'cover_image' => 'nullable|string',
+            'lat' => ['numeric','required','between:-90,90'],
+            'lng' => ['numeric','required','between:-180,180'],
             'description' => 'nullable|string',
             'menu_section_ids' => 'required|array|min:1',
             'delivery_cost' => 'nullable|numeric',

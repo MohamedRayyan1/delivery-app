@@ -19,33 +19,55 @@ class ProcessImageJob implements ShouldQueue
     protected $column;
     protected $path;
 
-    public function __construct($model, string $column, string $path)
+    public function __construct(string $path)
     {
-        $this->model = $model;
-        $this->column = $column;
         $this->path = $path;
     }
 
     public function handle()
-    {
-        if (!Storage::exists($this->path)) return;
-
-        // تهيئة المكتبة (إصدار V3)
-        $manager = new ImageManager(new Driver());
-
-        // قراءة الصورة
-        $image = $manager->read(Storage::get($this->path));
-
-        // معالجة: تصغير العرض لـ 800 بكسل مع الحفاظ على التناسب
-        $image->scale(width: 800);
-
-        // ترميز الصورة بجودة 75% بصيغة Jpeg
-        $encoded = $image->toJpeg(75);
-
-        // حفظ الصورة فوق القديمة
-        Storage::put($this->path, (string) $encoded);
-
-        // تحديث الموديل بالمسار
-        $this->model->update([$this->column => $this->path]);
+{
+    if (!Storage::disk('public')->exists($this->path)) {
+        return;
     }
+
+    $manager = new ImageManager(new Driver());
+
+    $fullPath = Storage::disk('public')->path($this->path);
+
+    $image = $manager->read($fullPath);
+
+    $image->scale(width: 800);
+
+    $extension = pathinfo($this->path, PATHINFO_EXTENSION);
+
+    if ($extension === 'png') {
+        $encoded = $image->toPng();
+    } else {
+        $encoded = $image->toJpeg(75);
+    }
+
+    $tempPath = $this->path . '.tmp';
+
+    Storage::disk('public')->put($tempPath, (string) $encoded);
+    Storage::disk('public')->move($tempPath, $this->path);
+}
+
+
+//    public function handle()
+// {
+//     // التأكد أن الملف موجود فيزيائياً
+//     if (!Storage::disk('public')->exists($this->path)) return;
+
+//     $manager = new ImageManager(new Driver());
+
+//     // معالجة مكثفة: قراءة، تصغير، تغيير جودة، تحويل صيغة
+//     $image = $manager->read(Storage::disk('public')->get($this->path));
+//     $image->scale(width: 800);
+//     $encoded = $image->toJpeg(75); // تقليل الحجم بنسبة كبيرة
+
+//     // حفظ الملف المعالج فوق الملف الأصلي الخام
+//     Storage::disk('public')->put($this->path, (string) $encoded);
+
+//     // ملاحظة: لا حاجة لتحديث قاعدة البيانات لأن المسار لم يتغير!
+// }
 }

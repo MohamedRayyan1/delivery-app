@@ -2,7 +2,8 @@
 
 namespace App\Services\Driver;
 
-use App\Jobs\ProcessDriverDocument;
+use App\Jobs\ProcessImageJob;
+use App\Models\DriverDocument;
 use App\Repositories\Eloquent\DriverRegistrationRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -18,7 +19,6 @@ class DriverRegistrationService
 
     public function registerDriver(array $data)
     {
-
         return DB::transaction(function () use ($data) {
 
             $userData = [
@@ -47,20 +47,32 @@ class DriverRegistrationService
                 'id_card_front',
                 'id_card_back',
                 'driver_license',
-                // 'vehicle_mechanic'
             ];
 
             foreach ($documentTypes as $type) {
                 if (request()->hasFile($type)) {
-                    // 1. تخزين الملف أولاً بشكل سريع
+                    // 1. تخزين الملف الخام بسرعة البرق
                     $path = request()->file($type)->store("drivers/{$driver->id}/documents", 'public');
 
-                    // 2. إرسال العملية للـ Queue لمعالجتها لاحقاً
-                    ProcessDriverDocument::dispatch($driver->id, $type, $path);
+                    // 2. إنشاء السجل فوراً لضمان عدم ضياع بيانات السائق (عملية سريعة جداً)
+                    DriverDocument::updateOrCreate(
+                        [
+                            'driver_id'     => $driver->id,
+                            'document_type' => $type,
+                        ],
+                        [
+                            'file_path' => $path,
+                            'status'    => 'pending',
+                        ]
+                    );
+
+                    // 3. إرسال الصورة لمعالج المهام الموحد الخاص بك لضغطها في الخلفية
+                    // نمرر null لأن الجوب الخاص بك لا يستخدم الموديل، بل يعتمد على المسار فقط
+                    ProcessImageJob::dispatch( $path)->afterCommit();
                 }
             }
 
-            return $driver->load(['user']); // لا نحمل documents هنا لأنها تعالج في الخلفية
+            return $driver->load(['user']);
         });
     }
 }

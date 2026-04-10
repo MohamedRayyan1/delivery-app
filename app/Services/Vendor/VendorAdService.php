@@ -35,7 +35,7 @@ class VendorAdService
             $ad = $this->repository->createAd($data);
 
             if (array_key_exists('image', $data)) {
-                dispatch(new ProcessImageJob($ad, 'image', $data['image']));
+                dispatch(new ProcessImageJob( $data['image']))->afterCommit();
             }
 
             return $ad;
@@ -59,7 +59,7 @@ class VendorAdService
             $updatedAd = $this->repository->findAdById($id, $resId);
 
             if (array_key_exists('image', $data)) {
-                dispatch(new ProcessImageJob($updatedAd, 'image', $data['image']));
+                dispatch(new ProcessImageJob( $data['image']))->afterCommit();
             }
 
             return $updatedAd;

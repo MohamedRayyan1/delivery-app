@@ -35,7 +35,7 @@ public function addSection( $data) {
 
         // 2. إرسال المهمة للـ Queue للمعالجة في الخلفية
         if (array_key_exists('image', $data)) {
-            dispatch(new \App\Jobs\ProcessImageJob($section, 'image', $data['image']));
+            dispatch(new \App\Jobs\ProcessImageJob( $data['image']))->afterCommit();
         }
 
         // $this->clearCache($resId);
@@ -63,7 +63,7 @@ public function updateSection($id, $data) {
 
         // 3. إرسال للـ Queue فقط إذا تم رفع صورة فعلياً
         if (array_key_exists('image', $data)) {
-            dispatch(new \App\Jobs\ProcessImageJob($section, 'image', $data['image']));
+            dispatch(new \App\Jobs\ProcessImageJob( $data['image']))->afterCommit();
         }
 
         return [
@@ -93,7 +93,7 @@ public function addSubSection($resId, $data) {
         $sub = $this->repository->createSubSection($data);
 
         if (array_key_exists('image', $data)) {
-            dispatch(new \App\Jobs\ProcessImageJob($sub, 'image', $data['image']));
+            dispatch(new \App\Jobs\ProcessImageJob( $data['image']))->afterCommit();
         }
 
         $this->clearCache($resId);
@@ -120,7 +120,7 @@ public function updateSubSection($id, $resId, $data) {
 
         // 3. التوجيه للـ Queue في حال تم تغيير الصورة
         if (array_key_exists('image', $data)) {
-            dispatch(new \App\Jobs\ProcessImageJob($subSection, 'image', $data['image']));
+            dispatch(new \App\Jobs\ProcessImageJob( $data['image']))->afterCommit();
         }
 
         $this->clearCache($resId);
@@ -152,17 +152,20 @@ public function updateSubSection($id, $resId, $data) {
    // إضافة وجبة جديدة
 public function addItem($resId, $data) {
     return DB::transaction(function () use ($resId, $data) {
-        // 1. معالجة رفع الملف فيزيائياً لمجلد الوجبات
+        // 1. رفع سريع جداً للملف كما هو بدون أي معالجة
         if (request()->hasFile('image')) {
             $data['image'] = request()->file('image')->store('menu/items', 'public');
         }
 
+        // 2. حفظ البيانات في قاعدة البيانات (سريع جداً)
         $item = $this->repository->createItem($data);
 
-        // 2. إرسال المهمة للـ Queue (تستخدم مصفوفة $data للتأكد من وجود المفتاح)
-        if (array_key_exists('image', $data)) {
-            dispatch(new \App\Jobs\ProcessImageJob($item, 'image', $data['image']));
+        // 3. رمي المهمة الثقيلة للـ Queue والهروب فوراً
+        if (isset($data['image'])) {
+            // نرسل فقط المعرف والمسار، والـ Job يتولى الباقي
+            dispatch(new \App\Jobs\ProcessImageJob( $data['image']))->afterCommit();
         }
+
 
         $this->clearCache($resId);
         return [
@@ -195,7 +198,7 @@ public function updateItem($id, $resId, $data) {
 
         // 3. التحديث في الخلفية عبر الـ Queue
         if (array_key_exists('image', $data)) {
-            dispatch(new \App\Jobs\ProcessImageJob($item, 'image', $data['image']));
+            dispatch(new \App\Jobs\ProcessImageJob( $data['image']))->afterCommit();
         }
 
         $this->clearCache($resId);

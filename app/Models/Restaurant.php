@@ -13,6 +13,8 @@ class Restaurant extends Model
         'city',
         'status',
         'logo',
+        'lat',
+        'lng',
         'cover_image',
         'description',
         'rating',

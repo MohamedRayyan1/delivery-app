@@ -10,6 +10,11 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote')->hourly();
 
+// 1. مجدول معالجة الصور بالخلفية (Queue Worker)
+// يعمل كل دقيقة لضمان معالجة الصور فوراً، ويتوقف عند انتهاء الطابور لتوفير الموارد
+Schedule::command('queue:work --stop-when-empty')->everyMinute();
+
+// 2. مجدول تحديث حالة الإعلانات
 Schedule::call(function () {
     $now = now();
 
