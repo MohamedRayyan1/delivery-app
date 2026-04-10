@@ -107,35 +107,34 @@ class HomePageController extends Controller
 
 
 
-  public function deliverOrder(Request $request, $id)
-{
-    // التأكد من إرسال كود التحقق
-    $request->validate([
-        'confirmation_code' => 'required|string|min:4',
-    ]);
+    public function deliverOrder(Request $request, $id)
+    {
+        // التأكد من إرسال كود التحقق
+        $request->validate([
+            'confirmation_code' => 'required|string|min:4',
+        ]);
 
-    $driverId = Auth::user()->driver->id;
+        $driverId = Auth::user()->driver->id;
 
-    try {
-        // تنفيذ عملية التوصيل عبر السيرفس
-        $deliveryRequest = $this->service->deliverOrder(
-            $id,
-            $driverId,
-            $request->confirmation_code
-        );
+        try {
+            // تنفيذ عملية التوصيل عبر السيرفس
+            $deliveryRequest = $this->service->deliverOrder(
+                $id,
+                $driverId,
+                $request->confirmation_code
+            );
 
-        // تحميل علاقة الأوردر لضمان وصول البيانات المالية للـ Resource
-        $deliveryRequest->load('order');
+            // تحميل علاقة الأوردر لضمان وصول البيانات المالية للـ Resource
+            $deliveryRequest->load('order');
 
-        return $this->successResponse(
-            new OrderDeliveryResultResource($deliveryRequest),
-            'تم توصيل الطلب بنجاح! شكراً لجهودك.'
-        );
-
-    } catch (\Exception $e) {
-        return $this->errorResponse($e->getMessage(), 400);
+            return $this->successResponse(
+                new OrderDeliveryResultResource($deliveryRequest),
+                'تم توصيل الطلب بنجاح! شكراً لجهودك.'
+            );
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 400);
+        }
     }
-}
 
 
     public function pendingOrderSummary(int $id)

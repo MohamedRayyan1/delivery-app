@@ -20,7 +20,6 @@ class SubMenuSectionSeeder extends Seeder
                 for ($j = 1; $j <= 3; $j++) {
                     DB::table('sub_menu_sections')->insert([
                         'restaurant_id'   => $restaurantId,
-                        'menu_section_id' => $menuSectionIds->random(),
                         'name' => match ($j) {
                             1 => 'مشاوي على الفحم',
                             2 => 'وجبات عائلية',

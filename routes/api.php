@@ -31,6 +31,7 @@ use App\Http\Controllers\Api\Vendor\DashboardController;
 use App\Http\Controllers\Api\Vendor\RestaurantReportController;
 use App\Http\Controllers\Api\Vendor\VendorOrderController;
 
+
 // 1. (Public)
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
