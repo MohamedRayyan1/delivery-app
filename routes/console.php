@@ -26,4 +26,4 @@ Schedule::call(function () {
     if ($activated > 0 || $expired > 0) {
         Cache::forget('active_ads');
     }
-})->hourly();
+})->everyFiveMinutes();
