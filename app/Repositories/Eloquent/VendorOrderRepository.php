@@ -30,4 +30,16 @@ class VendorOrderRepository
             ->orderBy('created_at', 'desc')
             ->cursorPaginate($perPage);
     }
+
+    public function findByIdAndRestaurant(int $orderId, int $restaurantId)
+    {
+        return Order::where('id', $orderId)
+            ->where('restaurant_id', $restaurantId)
+            ->firstOrFail();
+    }
+
+    public function updateStatus(int $orderId, string $status)
+    {
+        return Order::where('id', $orderId)->update(['status' => $status]);
+    }
 }

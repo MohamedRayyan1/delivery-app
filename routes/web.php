@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 
@@ -8,22 +9,22 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/debug-queue', function () {
-    Artisan::call('config:clear');
-    Artisan::call('cache:clear');
+// Route::get('/debug-queue', function () {
+//     Artisan::call('config:clear');
+//     Artisan::call('cache:clear');
 
-    $isQueued = in_array(
-        \Illuminate\Contracts\Queue\ShouldQueue::class,
-        class_implements(\App\Jobs\ProcessImageJob::class)
-    );
+//     $isQueued = in_array(
+//         \Illuminate\Contracts\Queue\ShouldQueue::class,
+//         class_implements(\App\Jobs\ProcessImageJob::class)
+//     );
 
-    return response()->json([
-        'config_cache_cleared' => true,
-        'queue_driver' => config('queue.default'),
-        'env_queue' => env('QUEUE_CONNECTION'),
-        'job_is_queueable' => $isQueued,
-    ]);
-});
+//     return response()->json([
+//         'config_cache_cleared' => true,
+//         'queue_driver' => config('queue.default'),
+//         'env_queue' => env('QUEUE_CONNECTION'),
+//         'job_is_queueable' => $isQueued,
+//     ]);
+// });
 
 
 Route::get('/queue/run-once', function () {
@@ -80,3 +81,5 @@ Route::get('/storage-link', function () {
         ], 500);
     }
 });
+
+

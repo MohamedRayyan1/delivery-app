@@ -60,6 +60,7 @@ class PendingOrderSummaryResource extends JsonResource
             ],
 
             'order_date' => $this->created_at->toDateTimeString(),
+            'code' => $this->delivery_confirmation_code
         ];
     }
 }

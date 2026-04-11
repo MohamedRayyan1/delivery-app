@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\Driver\DriverOrderHistoryController;
 use App\Http\Controllers\Api\Driver\DriverProfileController;
 use App\Http\Controllers\Api\Driver\DriverStatusController;
 use App\Http\Controllers\Api\Driver\HomePageController;
+use App\Http\Controllers\Api\TrackingController;
 use App\Http\Controllers\Api\Vendor\DashboardController;
 use App\Http\Controllers\Api\Vendor\RestaurantReportController;
 use App\Http\Controllers\Api\Vendor\VendorOrderController;
@@ -150,6 +151,7 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::get('/restaurant/report/pdf', [RestaurantReportController::class, 'downloadPdf']);
 
         Route::get('/orders', [VendorOrderController::class, 'index']);
+        Route::put('/orders/{orderId}/accept', [VendorOrderController::class, 'acceptOrder']);
 
         Route::get('/v-menu', [MenuController::class, 'indexvendor']);
     }); // Closed the vendor middleware group
@@ -220,6 +222,9 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
 
         Route::get('/restaurants', [CustomerRestaurantController::class, 'index']);
         Route::get('/restaurants/{id}', [CustomerRestaurantController::class, 'show']);
+
+        Route::get('/orders/{orderId}/tracking/driver/{driverId}', [TrackingController::class, 'getLocation']);
+
     });
 });  // Closed the auth:sanctum middleware group and not.banned middleware group
 
@@ -254,5 +259,9 @@ Route::prefix('driver')->group(function () {
         Route::post('orders/{id}/pickup', [HomePageController::class, 'pickupOrder']);
         //تسليم الطلب للزبون
         Route::post('orders/{id}/deliver', [HomePageController::class, 'deliverOrder']);
+
+
+        Route::put('/orders/{orderId}/location', [TrackingController::class, 'updateLocation']);
+
     }); // Closed the auth:sanctum middleware group
 }); //closed prefix driver

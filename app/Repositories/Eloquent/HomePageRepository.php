@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Eloquent;
 
+use App\Models\CustomerProfile;
 use App\Models\DeliveryRequest;
 use App\Models\Order;
 use Illuminate\Support\Facades\DB;
@@ -111,7 +112,7 @@ class HomePageRepository
 
     // HomePageRepository.php
 
-    public function markAsDelivered(int $requestId, int $driverId)
+public function markAsDelivered(int $requestId, int $driverId)
     {
         return DB::transaction(function () use ($requestId, $driverId) {
             // 1. جلب سجل طلب التوصيل والتأكد من ملكيته للسائق وحالته الحالية
@@ -129,12 +130,23 @@ class HomePageRepository
                 'status' => 'delivered'
             ]);
 
-            // 3. تحديث الجدول الرئيسي (orders) وتوثيق وقت الوصول
-            Order::where('id', $deliveryRequest->order_id)->update([
-                'status'       => 'delivered',
-                'delivered_at' => now(), // توثيق الوقت اللحظي
-                'payment_status' => 'paid' // تحديث حالة الدفع عند التسليم
-            ]);
+            // 3. جلب الطلب الأساسي لتحديثه ومعرفة صاحب الطلب
+            $order = Order::find($deliveryRequest->order_id);
+
+            if ($order) {
+                // تحديث الجدول الرئيسي (orders) وتوثيق وقت الوصول
+                $order->update([
+                    'status'         => 'delivered',
+                    'delivered_at'   => now(), // توثيق الوقت اللحظي
+                    'payment_status' => 'paid' // تحديث حالة الدفع عند التسليم
+                ]);
+
+                // 4. إضافة نقطة إضافية للعميل
+                CustomerProfile::firstOrCreate(
+                    ['user_id' => $order->user_id],
+                    ['points'  => 0]
+                )->increment('points');
+            }
 
             return $deliveryRequest;
         });

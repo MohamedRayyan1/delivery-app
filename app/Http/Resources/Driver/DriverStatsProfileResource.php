@@ -8,14 +8,12 @@ class DriverStatsProfileResource extends JsonResource
 {
     public function toArray($request): array
     {
-        $governorate = $this->user->governorate ?? '';
-        $city = $this->user->city ?? '';
-        $address = trim($governorate . '، ' . $city, '، ');
+
 
         return [
             'id' => $this->id,
             'name' => $this->user->name,
-            'address' => $address !== '' ? $address : 'غير محدد',
+            'address' => $this->user->governorate.'-'.$this->user->city,
             'is_online' => (bool)$this->is_online,
             'total_orders' => $this->orders_count ?? 0,
             'average_rating' => round($this->average_rating ?? 0, 1),

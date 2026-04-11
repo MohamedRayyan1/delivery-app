@@ -34,8 +34,8 @@ class RestaurantSeeder extends Seeder
                 'min_order_price' => rand(1500, 6000),
                 'delivery_time' => rand(20, 45) . ' دقيقة',
                 'is_featured' => (bool) rand(0, 1),
-                'lat' => 33.5138 + (rand(-40, 40) / 1000),
-                'lng' => 36.2765 + (rand(-40, 40) / 1000),
+'lat' => (float) (33.5138 + (rand(-25, 25) / 1000)),
+'lng' => (float) (36.2765 + (rand(-25, 25) / 1000)),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
