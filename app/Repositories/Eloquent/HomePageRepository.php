@@ -152,7 +152,6 @@ public function markAsDelivered(int $requestId, int $driverId)
         });
     }
 
-
     public function getOrderDetailsForSummary(int $orderId)
     {
         return Order::with([
