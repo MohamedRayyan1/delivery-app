@@ -14,7 +14,7 @@ class GetDriverOrdersHistoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => 'nullable|string|in:delivered,cancelled,new', // يمكن توسعتها حسب الحالات
+            'status' => 'nullable|string|in:delivered,accepted,picked_up,pending', // يمكن توسعتها حسب الحالات
             'search' => 'nullable|string', // للبحث برقم الطلب
             'per_page' => 'nullable|integer|min:5|max:50',
         ];
