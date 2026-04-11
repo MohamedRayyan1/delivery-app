@@ -41,4 +41,27 @@ class VendorOrderService
 
         return $order;
     }
+
+
+    public function requestDriver(int $restaurantId, int $orderId, ?string $vehicleType)
+    {
+        // جلب الطلب مع التحقق من الملكية والحالة
+        $order = $this->repository->findPreparingOrder($orderId, $restaurantId);
+
+        if (!$order) {
+            throw new Exception('لا يمكن طلب سائق لهذا الطلب؛ تأكد أن حالة الطلب "قيد التحضير".');
+        }
+
+        // التحقق من عدم وجود طلب توصيل مسبق لنفس الأوردر
+        if ($order->deliveryRequest()->exists()) {
+            throw new Exception('لقد قمت بطلب سائق لهذا الطلب بالفعل.');
+        }
+
+        return $this->repository->createDeliveryRequest([
+            'order_id'              => $order->id,
+            'offered_delivery_fee'  => $order->driver_earnings, // تم الحساب هنا عبر الـ Accessor في الموديل
+            'required_vehicle_type' => $vehicleType,
+            'status'                => 'pending'
+        ]);
+    }
 }

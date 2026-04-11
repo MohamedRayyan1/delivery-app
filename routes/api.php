@@ -123,12 +123,11 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::delete('/sub-sections/{id}', [MenuController::class, 'destroySubSection']);
 
         // Items
-
         Route::post('/items', [MenuController::class, 'storeItem']);
         Route::put('/items/{id}', [MenuController::class, 'updateItem']);
         Route::delete('/items/{id}', [MenuController::class, 'destroyItem']);
 
-        // //Extra
+        //Extra
         Route::get('/', [VendorExtraController::class, 'index']);
         Route::post('/extras', [VendorExtraController::class, 'store']);
         Route::put('/extras/{id}', [VendorExtraController::class, 'update']);
@@ -149,10 +148,11 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::get('/reports/overview', [RestaurantReportController::class, 'cards']);
         Route::get('/reports/monthlyGrowth', [RestaurantReportController::class, 'monthlyGrowth']);
         Route::get('/restaurant/report/pdf', [RestaurantReportController::class, 'downloadPdf']);
-
+        //Order
         Route::get('/orders', [VendorOrderController::class, 'index']);
         Route::put('/orders/{orderId}/accept', [VendorOrderController::class, 'acceptOrder']);
-
+        Route::post('reqDriver/{orderId}', [VendorOrderController::class, 'requestDriver']);
+        //Menu
         Route::get('/v-menu', [MenuController::class, 'indexvendor']);
     }); // Closed the vendor middleware group
 
@@ -224,7 +224,6 @@ Route::middleware(['auth:sanctum', 'not.banned'])->group(function () {
         Route::get('/restaurants/{id}', [CustomerRestaurantController::class, 'show']);
 
         Route::get('/orders/{orderId}/tracking/driver/{driverId}', [TrackingController::class, 'getLocation']);
-
     });
 });  // Closed the auth:sanctum middleware group and not.banned middleware group
 
@@ -262,6 +261,5 @@ Route::prefix('driver')->group(function () {
 
 
         Route::put('/orders/{orderId}/location', [TrackingController::class, 'updateLocation']);
-
     }); // Closed the auth:sanctum middleware group
 }); //closed prefix driver

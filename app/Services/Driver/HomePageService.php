@@ -53,6 +53,7 @@ class HomePageService
 
             // الشرط الصحيح: المسافة يجب أن تكون أصغر من أو تساوي 5 كم
             return $distanceToRest['distance_km'] <= 5.0;
+
         })->map(function ($request) {
             // 3. تجهيز بيانات العرض للطلبات التي نجحت في الفلترة
             $order = $request->order;
@@ -68,7 +69,6 @@ class HomePageService
             // إغناء كائن الطلب بالبيانات المحسوبة
             $request->distance_km = $distData['distance_km'];
             $request->duration_minutes = $distData['duration_minutes'];
-            $request->driver_profit = $request->offered_delivery_fee;
 
             return $request;
         })->values(); // إعادة ترتيب مفاتيح المصفوفة بعد الحذف (Filter)

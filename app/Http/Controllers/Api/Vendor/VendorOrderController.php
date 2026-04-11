@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Vendor;
 use App\Http\Controllers\Controller;
 use App\Services\Vendor\VendorOrderService;
 use App\Http\Requests\Vendor\GetVendorOrdersRequest;
+use App\Http\Resources\Vendor\DeliveryRequestResource;
 use App\Http\Resources\Vendor\VendorOrderResource;
 use Illuminate\Http\Request;
 use Exception;
@@ -42,7 +43,35 @@ class VendorOrderController extends Controller
                 'message' => 'Order accepted successfully and is now being prepared.',
                 'order' => new VendorOrderResource($order)
             ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
 
+
+    public function requestDriver(Request $request, int $orderId)
+    {
+        // التحقق من المدخلات بشكل صارم
+        $request->validate([
+            'vehicle_type' => 'required|string|in:motorcycle,car'
+        ]);
+
+        try {
+            $restaurantId = $request->user()->managedRestaurant->id;
+
+            $deliveryRequest = $this->orderService->requestDriver(
+                $restaurantId,
+                $orderId,
+                $request->vehicle_type
+            );
+
+            return $this->successResponse([
+                'message' => 'Driver request has been created successfully.',
+                'delivery_request' => new DeliveryRequestResource($deliveryRequest)
+            ]);
         } catch (Exception $e) {
             return response()->json([
                 'status' => false,
