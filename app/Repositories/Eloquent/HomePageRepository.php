@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Eloquent;
 
+use App\Models\CustomerProfile;
 use App\Models\DeliveryRequest;
 use App\Models\Order;
 use Illuminate\Support\Facades\DB;
@@ -129,17 +130,27 @@ class HomePageRepository
                 'status' => 'delivered'
             ]);
 
-            // 3. تحديث الجدول الرئيسي (orders) وتوثيق وقت الوصول
-            Order::where('id', $deliveryRequest->order_id)->update([
-                'status'       => 'delivered',
-                'delivered_at' => now(), // توثيق الوقت اللحظي
-                'payment_status' => 'paid' // تحديث حالة الدفع عند التسليم
-            ]);
+            // 3. جلب الطلب الأساسي لتحديثه ومعرفة صاحب الطلب
+            $order = Order::find($deliveryRequest->order_id);
+
+            if ($order) {
+                // تحديث الجدول الرئيسي (orders) وتوثيق وقت الوصول
+                $order->update([
+                    'status'         => 'delivered',
+                    'delivered_at'   => now(), // توثيق الوقت اللحظي
+                    'payment_status' => 'paid' // تحديث حالة الدفع عند التسليم
+                ]);
+
+                // 4. إضافة نقطة إضافية للعميل
+                CustomerProfile::firstOrCreate(
+                    ['user_id' => $order->user_id],
+                    ['points'  => 0]
+                )->increment('points');
+            }
 
             return $deliveryRequest;
         });
     }
-
 
     public function getOrderDetailsForSummary(int $orderId)
     {
